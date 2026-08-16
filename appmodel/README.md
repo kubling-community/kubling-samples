@@ -1,5 +1,8 @@
 # App Model Sample
 
+> [!WARNING]
+> Legacy reference: this sample is not validated with Kubling 26.4. It combines retired built-in adapters, external infrastructure, old image tags, and superseded commands. Use its functions and endpoint definitions as source material, not as a runnable deployment guide. Start with the [supported Quickstart](../quickstart/README.md).
+
 Goal
 : Explore a real example, using a hypothetical scenario in which a company, that has hundred of applications, 
 wants to generate an application model and allow users and systems interact with it

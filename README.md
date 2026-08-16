@@ -1,90 +1,67 @@
-# dbvirt-samples
+# Kubling Samples
 
-[![Kubling license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
 
-Kubling Data Source Virtualization (or DBVirt) is a virtual-schemafull database engine that delegates the data fetch 
-and feeding to custom Javascript modules, meaning better flexibility by removing dependencies on vendor-provided connectors.
+Runnable examples for Kubling. This repository provides the canonical first-run experience and focused examples for features that are easier to understand from working code than from reference documentation alone.
 
-## 5-seconds setup
-**Starting from version `24.5`**, the engine comes with an embedded web console and a restart endpoint, created to make quick tests easier.
-By default, they are disabled, but can be enabled using an environment variable.
+## Quickstart
 
-Assuming that you cloned the repo in `~/dbvirt-samples`, just run:
-```
-docker run --rm \ 
-    -e ENABLE_WEB_CONSOLE=true \ 
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -e DESCRIPTOR_BUNDLE=/dbvirt-samples/empty/empty-descriptor-bundle.zip \
-    -e APP_CONFIG=/dbvirt-samples/empty/app-config.yaml \ 
-    kubling/kubling:latest
+The supported 26.4 Quickstart runs Kubling, Kubling Studio, and the official In-memory provider with Docker Compose.
+
+```bash
+cd quickstart
+docker compose up --wait
 ```
 
-Then open your browser and go to `http://localhost:8282/console`
+Open <http://localhost:8282/console>, or follow the complete [Quickstart guide](quickstart/README.md) for its deterministic query, mutation, automated smoke test, and cleanup.
 
-## Motivation
-While working on a platform for containerized workloads, we realized that the proliferation of tools would bring a lot of complexity to our platform's model
-if we wanted to support them all.
-<br/>
-One of the first challenges we encountered is that those tools name things differently, even though most of them are based originally in Kubernetes.
-That lead us to start designing an abstraction layer which also involves a minimal definition of certain common concepts, like `DEPLOYMENT` or `STORAGE VOLUME`.
+The Quickstart requires only Git, Docker Engine, and Docker Compose v2. It does not require Go, Java, Kubernetes, an external database, or source credentials.
 
+## Feature examples
 
-Conclusion was interesting: we found out that the intersection of definitions from multiple tools is a set a common properties that, fortunately, represent
-the dynamic part of the workload scheduling process and resource creation, whereas the tool-specific parts were mostly associated to properties defined in provisioning scripts
-which are occasionally changed.
-<br/>
-That was good news because minimizing the definition of `DEPLOYMENT` would imply the loss of flexibility and could compromise the adaptability when providing services
-to teams that require capacity for running workloads.
+The repository also provides focused feature examples. Entries marked as legacy predate 26.4 and are retained as source material rather than supported runbooks:
 
-Kubling DBVirt then acts as a fully-consistent CRUD translation layer, allowing to define "simplified" entities whose meaning should not be associated to any specific implementation, with the
-ability to deal with any tool's complexity using custom JavaScript code.
-Besides, those minimized entities could be the result of a combination of other entities, that is, when querying `DEPLOYMENT`s the result we see is an aggregation of deployments
-fetched from, for example, Kubernetes on-prem, AKS and Docker containers running in VMs.
+| Directory | What it teaches | Current state |
+|:--|:--|:--|
+| `endpoints/` | Query endpoints, actions, mutations, and templates | Supported on 26.4 |
+| `rbac/` | Authentication, authorization, and data policies | Supported on 26.4 |
+| `initializer/` | Initialization and scheduled JavaScript behavior | Retain and modernize |
+| `documents/` | Nested-document and synthetic-entity handling | Retain and modernize |
+| `minimal/` | JavaScript data-source contracts | Retain as source material for a focused JavaScript sample |
+| `appmodel/` | Functions, endpoints, orchestration, and federation | Reference only; decompose into smaller samples |
+| `hibernate/` | JDBC, JPA, Hibernate, and Testcontainers integration | Retain for a separate compatibility decision |
 
+Each legacy directory carries its own warning. Until that warning is removed, use the code to understand the feature—not as a validated 26.4 deployment recipe. Provider-backed examples must use `PROVIDER_GRPC`; a sample may intentionally use a JavaScript adapter when JavaScript itself is the lesson.
 
-## Organization of the samples
-| Directory             | Goal                                                                                                                                                                                                                      |
-|:----------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| empty                 | An empty descriptor, with no data sources, useful only when testing via web console.                                                                                                                                      |
-| minimal               | A really simple example in which we create a Virtual Database with a single virtual entity.                                                                                                                               |
-| RBAC                  | Similar to the minimal example but with a really small custom authentication/authorization script.                                                                                                                        |
-| initializer/scheduler | Explores how to use initialization script and scheduler                                                                                                                                                                   |
-| documents             | Learn how to deal with complex nested documents, and how to decide whether `DBVirt` can help.                                                                                                                             |
-| endpoints             | In this sample we will expose some endpoints to chain operations (actions) and to query data.                                                                                                                             |
-| azure                 | Interacts with Azure API using a generated Client based on OpenApi Spec.                                                                                                                                                  |
-| appmodel              | This is the most advanced example in which we build a Data Model for a company that has multiple applications and wants to create provisioning workflows and abstract developers from the underlying system's complexity. |
-| hibernate             | A really simple example that shows how to start with `DBVirt` and JPA/Hibernate in a SpringBoot context.                                                                                                                  |
+## Sample quality contract
 
-### Organization of each sample
-| Directory/File  |                                                                                                                                                                                     |
-|:----------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| descriptor      | Contains the main bundle that will be loaded during engine initialization.                                                                                                          |
-| modules         | Contains the JavaScript modules the descriptor specifies                                                                                                                            |
-| app-config.yaml | The only non-dynamic configuration file that the Engine reads during initialization which specifies some Engine configurations and, more important, VDB descriptor bundle location  |
+Every supported sample must:
 
-## Configuration Yaml files
-Yaml files are always parsed as templates, in this sample project we will use basic expressions delimited by `{{ ··· }}` that will be mostly replaced by environment variables and loaded variables injected in the template context.
-More advanced use cases will be added as this project grows.
+- teach one clear Kubling capability;
+- run independently with exact dependency versions;
+- state prerequisites, startup, readiness, verification, expected results, and cleanup;
+- avoid external credentials and paid infrastructure unless that dependency is the lesson;
+- keep generated bundles and runtime state out of Git; and
+- include automation appropriate to its scope.
 
-## How to interact with the engine
-Once your instance is running and configured, the easiest way to interact with it is by connecting using [PostgreSQL](https://www.postgresql.org/docs/current/protocol-message-formats.html)
-client since, by default, `DBVirt` listens to connections using this protocol on port `35432`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution contract.
 
-Just run `psql -h <IP/HOSTNAME> -p 35432 -U <USERNAME> -d <VDB>`
+## Generated artifacts
 
-## Debug JS Actions
-By default, `DBVirt` does not print out any internal log message to the console, leaving it clean for scripts.
-In case you need to add debug messages, just `print("My debug message");` from any script and get container's logs printed in the `stdout`.
+Descriptor and module bundles are build output. ZIP files, compiled classes, JARs, database files, and runtime state must not be committed.
 
-## `kdv` CLI tool
-`kdv` is released as a native executable (still in progress) and as a [OCI image published in DockerHub](https://hub.docker.com/r/kubling/kubling-cli/tags).<br>
-Usage:
-`docker run --rm -v [path/of/your/project]:[path/in/container] kubling/kubling-cli:latest [command] [subcommand] [params] [options]`
+The Quickstart runs an exact Kubling CLI image to generate its descriptor bundle inside a named Compose volume. Contributors therefore do not need to install the CLI or a host-language toolchain.
 
-Example:
-`docker run --rm -v /root/dbvirt-samples/:/dbvirt-samples/ kubling/kubling-cli:latest bundle genmod /dbvirt-samples/azure/modules/delegate -o /dbvirt-samples/azure/modules/delegate/azure-module-bundle.zip`
+## Versioning
 
-For more information about available commands please [see this doc](docs/KDV.MD).
+Samples target an explicit Kubling release line. The first modernized baseline is `26.4`.
 
-## Use `DBeaver` for testing
-`DBeaver` is our first option when testing things locally. [Please follow this steps](docs/DBeaver.md) to configure it in your environment.
+- Published image references use exact versions; `latest` and untagged images are not accepted.
+- The canonical Quickstart will also pin image digests once the public release digests are confirmed.
+- Repository release tags should identify the compatible Kubling line, for example `26.4.0` or `26.4.0-1` for a samples-only correction.
+
+The repository is published as `kubling-community/kubling-samples`, a name that covers both the Quickstart and the advanced feature examples.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).

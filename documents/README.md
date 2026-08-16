@@ -1,5 +1,8 @@
 # Documents Sample
 
+> [!WARNING]
+> Legacy reference: this sample is not validated with Kubling 26.4. Its synthetic-entity and JavaScript examples remain useful, but its external mock and run instructions are obsolete. Start with the [supported Quickstart](../quickstart/README.md).
+
 Goal
 : Learn how to deal with complex nested documents, and how to decide whether Kubling can help.
 

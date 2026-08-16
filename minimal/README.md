@@ -1,5 +1,8 @@
 # Minimal Sample
 
+> [!WARNING]
+> Legacy reference: this JavaScript data-source example is not validated with Kubling 26.4, and its image and bundle commands are obsolete. Use it to study the delegate contract, not as the repository Quickstart. Start with the [supported Quickstart](../quickstart/README.md).
+
 Goal
 : Get familiar with the basic structure of a `DBVirt` bundle file and JavaScript Modules
 

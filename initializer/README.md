@@ -1,5 +1,8 @@
 # Authentication Sample
 
+> [!WARNING]
+> Legacy reference: this initializer and scheduler example is not validated with Kubling 26.4, and its image and bundle commands are obsolete. The JavaScript lifecycle code remains useful source material. Start with the [supported Quickstart](../quickstart/README.md).
+
 Goal
 : Use initializing and scheduling to keep a token up-to-date that we to pass all JS contexts.<br/>
 In a real world use case, we could use this feature to avoid having to incorporate the logic of getting and verifying access
