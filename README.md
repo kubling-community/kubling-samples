@@ -30,7 +30,6 @@ The repository also provides focused feature examples. Entries marked as legacy 
 | `initializer/` | Initialization and scheduled JavaScript behavior | Supported on 26.4 |
 | `synthetic-entities/` | Relational projections and mutations over nested document arrays | Supported on 26.4 |
 | `appmodel/` | Functions, endpoints, orchestration, and federation | Reference only; decompose into smaller samples |
-| `hibernate/` | JDBC, JPA, Hibernate, and Testcontainers integration | Retain for a separate compatibility decision |
 
 Each legacy directory carries its own warning. Until that warning is removed, use the code to understand the feature—not as a validated 26.4 deployment recipe. Provider-backed examples must use `PROVIDER_GRPC`; a sample may intentionally use a JavaScript adapter when JavaScript itself is the lesson.
 

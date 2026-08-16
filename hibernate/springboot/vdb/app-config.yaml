@@ -1,7 +1,0 @@
-transports:
-  nativeProtocol:
-    bindAddress: 0.0.0.0
-    portNumber: 35482
-    secure: false
-vdb:
-  descriptorBundle: /app_data/descriptor.zip
