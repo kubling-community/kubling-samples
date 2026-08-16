@@ -25,9 +25,9 @@ The repository also provides focused feature examples. Entries marked as legacy 
 |:--|:--|:--|
 | `endpoints/` | Query endpoints, actions, mutations, and templates | Supported on 26.4 |
 | `rbac/` | Authentication, authorization, and data policies | Supported on 26.4 |
+| `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported on 26.4 |
 | `initializer/` | Initialization and scheduled JavaScript behavior | Retain and modernize |
 | `documents/` | Nested-document and synthetic-entity handling | Retain and modernize |
-| `minimal/` | JavaScript data-source contracts | Retain as source material for a focused JavaScript sample |
 | `appmodel/` | Functions, endpoints, orchestration, and federation | Reference only; decompose into smaller samples |
 | `hibernate/` | JDBC, JPA, Hibernate, and Testcontainers integration | Retain for a separate compatibility decision |
 
@@ -50,7 +50,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution contract.
 
 Descriptor and module bundles are build output. ZIP files, compiled classes, JARs, database files, and runtime state must not be committed.
 
-The Quickstart runs an exact Kubling CLI image to generate its descriptor bundle inside a named Compose volume. Contributors therefore do not need to install the CLI or a host-language toolchain.
+Supported samples run an exact Kubling CLI image to generate descriptor and module bundles inside named Compose volumes. Contributors therefore do not need to install the CLI or a host-language toolchain.
 
 ## Versioning
 

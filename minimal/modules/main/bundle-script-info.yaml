@@ -1,8 +1,0 @@
-resultSetScript:
-  scriptFilePath: "action/resultset.js"
-insertScript:
-  scriptFilePath: "action/insert.js"
-updateScript:
-  scriptFilePath: "action/update.js"
-deleteScript:
-  scriptFilePath: "action/delete.js"
