@@ -1,0 +1,51 @@
+name: Functions
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/functions.yml"
+      - "functions/**"
+      - "scripts/check-functions.sh"
+  push:
+    paths:
+      - ".github/workflows/functions.yml"
+      - "functions/**"
+      - "scripts/check-functions.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: functions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  functions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Validate static contract
+        run: bash scripts/check-functions.sh
+
+      - name: Start Functions sample
+        working-directory: functions
+        run: docker compose up --wait --wait-timeout 180
+
+      - name: Run SQL and template function smoke test
+        working-directory: functions
+        run: docker compose --profile test run --rm --no-deps smoke-test
+
+      - name: Show logs after failure
+        if: failure()
+        working-directory: functions
+        run: docker compose logs --no-color
+
+      - name: Remove Functions sample
+        if: always()
+        working-directory: functions
+        run: docker compose down --volumes --remove-orphans

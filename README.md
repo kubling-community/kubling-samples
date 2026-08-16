@@ -26,6 +26,7 @@ The repository also provides focused feature examples. Entries marked as legacy 
 | `endpoints/` | Query endpoints, actions, mutations, and templates | Supported on 26.4 |
 | `rbac/` | Authentication, authorization, and data policies | Supported on 26.4 |
 | `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported on 26.4 |
+| `functions/` | SQL functions and custom template functions | Supported on 26.4 |
 | `initializer/` | Initialization and scheduled JavaScript behavior | Retain and modernize |
 | `documents/` | Nested-document and synthetic-entity handling | Retain and modernize |
 | `appmodel/` | Functions, endpoints, orchestration, and federation | Reference only; decompose into smaller samples |

@@ -1,0 +1,12 @@
+maxContexts: 5
+maxWaitMilliseconds: 5000
+
+queryFunctions:
+  - name: "task_label"
+    description: "Builds a deterministic display label from a task identifier and title."
+    scriptFilePath: "fn/task_label.js"
+    parameters:
+      id: string
+      title: string
+    returnType: string
+    isDeterministic: true

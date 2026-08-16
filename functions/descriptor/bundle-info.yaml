@@ -1,0 +1,12 @@
+virtualDatabases:
+  - "vdb/FunctionsVDB.yaml"
+
+queryEndpointsDirectory: "endpoint/queries"
+
+actionTemplatesFunctionModules:
+  - name: "templates"
+    zipFilePath: "{{ TEMPLATE_FUNCTIONS_BUNDLE }}"
+
+sqlFunctionModules:
+  - name: "functions"
+    zipFilePath: "{{ SQL_FUNCTIONS_BUNDLE }}"

@@ -1,0 +1,5 @@
+functions:
+  - name: "validate_task_id"
+    params:
+      - taskId
+    scriptFilePath: "fn/validate_task_id.js"
