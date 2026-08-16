@@ -1,7 +1,0 @@
-virtualDatabases:
-  - 'vdb/AppModelVDB.yaml'
-actionsDirectory: 'endpoint/actions'
-queryEndpointsDirectory: 'endpoint/queries'
-actionTemplatesFunctionModules:
-  - name: "tfm"
-    zipFilePath: "{{ TEMPLATE_FUNCTIONS_BUNDLE }}"

@@ -1,0 +1,6 @@
+name: "javascript-sample"
+version: "1.0.0"
+description: "Deterministic JavaScript data source used by the Kubling samples repository."
+innerDDLFilePath: "schema.sql"
+innerTranslatorConfigFilePath: "translator-config.yaml"
+handlersAutoDiscoveryPath: "handler"

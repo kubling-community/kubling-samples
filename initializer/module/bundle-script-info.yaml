@@ -1,0 +1,13 @@
+name: "initializer-sample"
+version: "1.0.0"
+description: "Deterministic initialization and scheduling lifecycle used by the Kubling samples repository."
+innerDDLFilePath: "schema.sql"
+innerTranslatorConfigFilePath: "translator-config.yaml"
+handlersAutoDiscoveryPath: "handler"
+
+initScript:
+  scriptFilePath: "init/initialize_state.js"
+
+scheduledScripts:
+  - scriptFilePath: "scheduled/advance_state.js"
+    cron: "0/2 * * * * *"

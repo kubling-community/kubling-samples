@@ -1,0 +1,54 @@
+---
+name: "RbacVDB"
+version: "1"
+
+dataSources:
+  - name: "provider"
+    description: "Deterministic task data owned by the official Kubling In-memory provider."
+    dataSourceType: "PROVIDER_GRPC"
+    configObject:
+      address: "{{ PROVIDER_HOST }}"
+      port: {{ PROVIDER_PORT }}
+      securityConfig:
+        mode: "PLAINTEXT"
+      cache:
+        enabled: false
+      contributesToHealth: true
+    schema:
+      type: "PHYSICAL"
+      cacheDefaultStrategy: "NO_CACHE"
+
+rbacDataRoles:
+  - name: "task_reader"
+    description: "Can read tasks but cannot mutate them."
+    allowCreateTemporaryTables: false
+    roleNameMappings:
+      - "ROLE_TASK_READER"
+    schemas:
+      - "provider"
+    permissions:
+      - resource: "provider.TASK"
+        resourceType: TABLE
+        allowCreate: false
+        allowRead: true
+        allowUpdate: false
+        allowDelete: false
+        allowAlter: false
+        allowExecute: false
+
+  - name: "task_editor"
+    description: "Can read and update tasks but cannot create or delete them."
+    allowCreateTemporaryTables: false
+    roleNameMappings:
+      - "ROLE_TASK_EDITOR"
+    schemas:
+      - "provider"
+    permissions:
+      - resource: "provider.TASK"
+        resourceType: TABLE
+        allowCreate: false
+        allowRead: true
+        allowUpdate: true
+        allowDelete: false
+        allowAlter: false
+        allowExecute: false

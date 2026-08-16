@@ -1,72 +1,128 @@
 # Endpoints Sample
 
-Goal
-: Get some basic knowledge on endpoints feature as well as templates.
+This sample demonstrates Kubling query endpoints and actions against the official In-memory gRPC provider. It is intentionally small: one endpoint reads a task, and one action creates one.
 
-Difficulty
-: Medium
+## Requirements
 
-## What are *endpoints* in Kubling?
-Please see latest [official documentation.](https://docs.kubling.com/Engine/endpoints)
+- Git;
+- Docker Engine; and
+- Docker Compose v2.
 
-Endpoints are divided into types: Queries and Actions.
+You do not need Go, Java, Kubernetes, a database server, source credentials, or a host-installed SQL client.
 
-### Queries
-Allow to dynamically expose services that return a collection of rows using a SQL query.
+## Start
 
-### Actions
-The purpose of actions is to define a sequence of operations that are performed across other systems, typically represented as entities within a VDB. In essence, an action represents the required operations to achieve a desired upstream state, using Kubling SQL queries.
+From this directory, run:
 
-## How to test it
-
-### 1. Generate bundle files
-Execute [the gen-bundle script](gen-bundles.sh) to generate the zip files.
-
-### 2. app-config
-Point `descriptorBundle` to the file generated in the first step, called `endpoints-descriptor-bundle.zip`.
-
-### 3. Kubernetes Server Mock
-Clone [this project](https://github.com/kubling-community/dbvirt-mock-upstream.git).<br/>
-Build using `./mvnw clean package` and run `java -jar target/dbvirt-mock-upstream-24.12.jar`
-
-### 4. Run container
-This sample works well with our Community Edition, just replace the environment variables and run:
-
-```
-docker run --rm \ 
-    -e DESCRIPTOR_BUNDLE=[/path/to/endpoints-descriptor-bundle.zip] \
-    -e APP_CONFIG=[/path/to/app-config.yaml] \
-    -e PROPS_FILE=[/path/to/env.properties] \
-    -p 35432:35432 -p 8282:8282 \
-    -v [/path/to/dbvirt-samples]:[mount/path] \
-    kubling/kubling:latest
+```bash
+docker compose up --wait
 ```
 
-Or, assuming that you cloned the repo in `~/dbvirt-samples`, just run:
-```
-docker run --rm \
-    -e DESCRIPTOR_BUNDLE=/dbvirt-samples/endpoints/endpoints-descriptor-bundle.zip \
-    -e APP_CONFIG=/dbvirt-samples/endpoints/app-config.yaml \
-    -e PROPS_FILE=/dbvirt-samples/endpoints/env.properties \
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -v ~/dbvirt-samples:/dbvirt-samples \
-    kubling/kubling:latest
+The stack publishes Kubling on <http://localhost:8283>. Its aggregate health endpoint is <http://localhost:8283/observe/health>, and Kubling Studio is available at <http://localhost:8283/console>.
+
+## Architecture
+
+Kubling loads `EndpointsVDB`, registers the `provider` schema as `PROVIDER_GRPC`, and imports its physical schema through `GetSchema`. The VDB does not duplicate provider DDL.
+
+The descriptor also registers:
+
+- `get_task`, a parameterized SQL query endpoint; and
+- `create_task`, an action with an insert operation.
+
+Both endpoints execute through Kubling. The provider remains responsible for source-side reads and mutations.
+
+## Query endpoint
+
+The provider starts `task-2` with `completed = false`. Retrieve it through the named endpoint:
+
+```bash
+curl --fail --silent --show-error \
+  --header 'Content-Type: application/json' \
+  --data '{"task_id":"task-2"}' \
+  http://localhost:8283/api/v1/query/perform/get_task
 ```
 
-### 5. Endpoints
-Once the container is running, use the following commands to start testing:
-* ```
-  curl --location 'http://localhost:8282/api/v1/query/perform/get_all_deployments' \
-    --header 'Content-Type: application/json' \
-    --data '{ "namespace": "08abb0fc-f7af-4fe8-98d4-e76729567dc8" }'
-  ```
-* ```
-  curl --location 'http://localhost:8282/api/v1/query/perform/get_all_deployments_volumes' \
-    --header 'Content-Type: application/json' \
-    --data '{ "namespace": "08abb0fc-f7af-4fe8-98d4-e76729567dc8" }'
-  ```
-* ```
-  curl --location 'http://localhost:8282/api/v1/actions/run/add_deployment_volume' \
-    --header 'Content-Type: application/json' \
-    --data '{ "clusterName": "my_demo_cluster_1", "namespace": "08abb0fc-f7af-4fe8-98d4-e76729567dc8", "deploymentName": "nginx", "containerName": "1-nginx", "volName": "conf1-m0zhgq-2", "volMountPath": "/my/mnt/2", "volReadOnly": false }'
-  ```  
+The response contains:
+
+```json
+{
+  "containsError": false,
+  "object": [
+    {
+      "id": "task-2",
+      "title": "Build in-memory provider",
+      "completed": false
+    }
+  ]
+}
+```
+
+`task_id` is declared as a required template field. This local sample uses a trusted deterministic value; production endpoints must validate any untrusted value before interpolating it into SQL.
+
+## Action endpoint
+
+Create a deterministic task through the named action:
+
+```bash
+curl --fail --silent --show-error \
+  --header 'Content-Type: application/json' \
+  --data '{"task_id":"task-endpoint-sample"}' \
+  http://localhost:8283/api/v1/actions/run/create_task
+```
+
+Expected response:
+
+```json
+{
+  "containsError": false
+}
+```
+
+Calling `get_task` with `task-endpoint-sample` then returns:
+
+```json
+{
+  "containsError": false,
+  "object": [
+    {
+      "id": "task-endpoint-sample",
+      "title": "Created through an action",
+      "completed": false
+    }
+  ]
+}
+```
+
+The insert is executed through the provider. Reusing the same ID without deleting the task first is expected to fail because provider task IDs are unique.
+
+## Automated validation
+
+With the stack running, execute:
+
+```bash
+docker compose --profile test run --rm smoke-test
+```
+
+The smoke test removes any prior sample task, exercises the query endpoint, runs the action, verifies the resulting provider state, and removes the task again. It prints `Endpoints smoke test passed.` on success.
+
+## Runtime contract
+
+| Item | Value |
+|:--|:--|
+| Kubling image | `docker.io/kubling/kubling:latest` |
+| Provider image | `docker.io/kubling/inmemory-provider:latest` |
+| Descriptor builder | `docker.io/kubling/kubling-cli:latest` |
+| VDB | `EndpointsVDB` |
+| Data source and schema | `provider` |
+| Provider table | `TASK` |
+| Published host port | `8283` on all host interfaces |
+| Provider gRPC | `provider:50051`, internal to Compose |
+| Health | `http://localhost:8283/observe/health` |
+
+## Cleanup
+
+Remove containers, the network, and the generated descriptor volume:
+
+```bash
+docker compose down --volumes
+```

@@ -1,0 +1,12 @@
+{% set vdb = "EndpointsVDB" %}
+---
+type: sqlDirect
+virtualDatabase: {{ vdb }}
+
+neededFields:
+  - task_id
+
+query: |
+  SELECT id, title, completed
+  FROM provider.TASK
+  WHERE id = '{{ task_id }}'

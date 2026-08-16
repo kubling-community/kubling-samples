@@ -1,0 +1,51 @@
+name: Synthetic Entities
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/synthetic-entities.yml"
+      - "synthetic-entities/**"
+      - "scripts/check-synthetic-entities.sh"
+  push:
+    paths:
+      - ".github/workflows/synthetic-entities.yml"
+      - "synthetic-entities/**"
+      - "scripts/check-synthetic-entities.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: synthetic-entities-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-entities:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Validate static contract
+        run: bash scripts/check-synthetic-entities.sh
+
+      - name: Start Synthetic Entities sample
+        working-directory: synthetic-entities
+        run: docker compose up --wait --wait-timeout 180
+
+      - name: Run synthetic query and mutation smoke test
+        working-directory: synthetic-entities
+        run: docker compose --profile test run --rm --no-deps smoke-test
+
+      - name: Show logs after failure
+        if: failure()
+        working-directory: synthetic-entities
+        run: docker compose logs --no-color
+
+      - name: Remove Synthetic Entities sample
+        if: always()
+        working-directory: synthetic-entities
+        run: docker compose down --volumes --remove-orphans

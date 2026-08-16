@@ -1,0 +1,12 @@
+{% set taskId = templates__validate_task_id(_context.task_id) %}
+---
+type: sqlDirect
+virtualDatabase: FunctionsVDB
+
+neededFields:
+  - task_id
+
+query: |
+  SELECT id, task_label(id, title) AS label
+  FROM provider.TASK
+  WHERE id = '{{ taskId }}'

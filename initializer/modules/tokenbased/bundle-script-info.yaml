@@ -1,8 +1,0 @@
-resultSetScript:
-  scriptFilePath: "action/resultset.js"
-initScript:
-  scriptFilePath: "init/init_token.js"
-scheduledScripts:
-  - scriptFilePath: "scheduled/refresh_token.js"
-    # Standard CRON expression that will make the script execute every 10 seconds
-    cron: "0/10 * * * * *"

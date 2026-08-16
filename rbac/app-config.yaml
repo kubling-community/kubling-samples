@@ -1,10 +1,40 @@
+instanceName: "kubling-rbac-sample"
+
 transports:
   nativeProtocol:
+    enable: false
     bindAddress: "0.0.0.0"
     portNumber: 35482
     secure: false
+  grpc:
+    enable: false
+    bindAddress: "0.0.0.0"
+    portNumber: 50061
+    secure: false
   pgProtocol:
+    enable: true
     bindAddress: "0.0.0.0"
     portNumber: 35432
+    secure: false
+
 vdb:
-  descriptorBundle: {{ DESCRIPTOR_BUNDLE }}
+  descriptorBundle: "{{ DESCRIPTOR_BUNDLE }}"
+
+management:
+  enableRestartEndpoint: false
+
+cache:
+  enableInvalidateEndpoint: false
+
+buffer:
+  useDisk: false
+
+softTransactions:
+  enabled: false
+  crashCompensationEnabled: false
+
+kublingAgent:
+  enabled: false
+
+performanceTracer:
+  enabled: false

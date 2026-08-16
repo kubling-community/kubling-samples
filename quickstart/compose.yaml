@@ -1,0 +1,88 @@
+name: kubling-quickstart
+
+services:
+  descriptor-builder:
+    image: docker.io/kubling/kubling-cli:latest
+    command:
+      - bundle
+      - genmod
+      - /descriptor
+      - --output
+      - /bundle/provider-quickstart-descriptor.zip
+      - --parse
+    volumes:
+      - ./descriptor:/descriptor:ro
+      - descriptor-bundle:/bundle
+
+  provider:
+    image: docker.io/kubling/inmemory-provider:latest
+    expose:
+      - "50051"
+
+  provider-readiness:
+    image: docker.io/fullstorydev/grpcurl:latest
+    command:
+      - -plaintext
+      - -d
+      - "{}"
+      - provider:50051
+      - kubling.provider.v1.ProviderService/Health
+    depends_on:
+      provider:
+        condition: service_started
+    restart: "on-failure:30"
+
+  kubling:
+    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:latest}
+    environment:
+      APP_CONFIG: /quickstart/app-config.yaml
+      DESCRIPTOR_BUNDLE: /quickstart/bundle/provider-quickstart-descriptor.zip
+      ENABLE_WEB_CONSOLE: "true"
+      MAIN_HTTP_PORT: "8282"
+      PROVIDER_HOST: provider
+      PROVIDER_PORT: "50051"
+    depends_on:
+      descriptor-builder:
+        condition: service_completed_successfully
+      provider-readiness:
+        condition: service_completed_successfully
+    ports:
+      - "8282:8282"
+    volumes:
+      - ./app-config.yaml:/quickstart/app-config.yaml:ro
+      - descriptor-bundle:/quickstart/bundle:ro
+
+  stack-readiness:
+    image: docker.io/curlimages/curl:latest
+    entrypoint: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
+    depends_on:
+      kubling:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - http://kubling:8282/observe/health
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  smoke-test:
+    image: docker.io/curlimages/curl:latest
+    profiles:
+      - test
+    environment:
+      KUBLING_BASE_URL: http://kubling:8282
+      KUBLING_VDB: ProviderQuickstartVDB
+    depends_on:
+      stack-readiness:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/scripts/smoke-test.sh"]
+    volumes:
+      - ./scripts/smoke-test.sh:/scripts/smoke-test.sh:ro
+
+volumes:
+  descriptor-bundle:

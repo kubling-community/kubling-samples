@@ -1,0 +1,27 @@
+{% set vdb = "EndpointsVDB" %}
+---
+needed:
+  fields:
+    - task_id
+
+operations:
+  - name: "Create task"
+    type: "insert"
+    virtualDatabase: {{ vdb }}
+    entity: "provider.TASK"
+    valueAssignments:
+      - field: "id"
+        dataType: "string"
+        value: "{{ task_id }}"
+      - field: "project_id"
+        dataType: "string"
+        value: "project-1"
+      - field: "title"
+        dataType: "string"
+        value: "Created through an action"
+      - field: "completed"
+        dataType: "boolean"
+        value: false
+      - field: "priority"
+        dataType: "integer"
+        value: 10

@@ -1,4 +1,0 @@
-module:
-  zipFilePath: "{{ MODULE_BUNDLE }}"
-contextVariables:
-  cluster_name: "my_demo_cluster"

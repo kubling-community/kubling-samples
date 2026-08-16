@@ -1,0 +1,51 @@
+name: Quickstart
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/quickstart.yml"
+      - "quickstart/**"
+      - "scripts/check-quickstart.sh"
+  push:
+    paths:
+      - ".github/workflows/quickstart.yml"
+      - "quickstart/**"
+      - "scripts/check-quickstart.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quickstart-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quickstart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Validate static contract
+        run: bash scripts/check-quickstart.sh
+
+      - name: Start Quickstart
+        working-directory: quickstart
+        run: docker compose up --wait --wait-timeout 180
+
+      - name: Run query and mutation smoke test
+        working-directory: quickstart
+        run: docker compose --profile test run --rm smoke-test
+
+      - name: Show logs after failure
+        if: failure()
+        working-directory: quickstart
+        run: docker compose logs --no-color
+
+      - name: Remove Quickstart
+        if: always()
+        working-directory: quickstart
+        run: docker compose down --volumes --remove-orphans

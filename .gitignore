@@ -1,18 +1,27 @@
+# IDE and operating-system files
 /.idea/
-/minimal/modules/main-module-bundle.zip
-/minimal/minimal-descriptor-bundle.zip
-/rbac/rbac-descriptor-bundle.zip
-/initializer/initializer-descriptor-bundle.zip
-/initializer/modules/tokenbased-module-bundle.zip
-/endpoints/endpoints-descriptor-bundle.zip
-/documents/documents-descriptor-bundle.zip
-/documents/modules/documents-module-bundle.zip
-/appmodel/modules/appmodel-functions-bundle.zip
-/appmodel/modules/appmodel-module-bundle.zip
-/appmodel/appmodel-descriptor-bundle.zip
-/azure/modules/azure-module-bundle.zip
-/azure/azure-descriptor-bundle.zip
-/azure/modules/azure-sql-fn-parser-bundle.zip
-/appmodel/descriptor-mod.zip
-/appmodel/main-mod.zip
-/hibernate/springboot/target/
+.DS_Store
+Thumbs.db
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Generated archives and build output
+*.zip
+*.jar
+*.class
+**/target/
+node_modules/
+
+# Engine runtime state
+*.db
+*.db-journal
+*.log
+**/bm/
+**/mvcc/
+kblpid
+app-[0-9]*.yaml
+vdbs-[0-9]*.yaml
+ev-[0-9]*.properties

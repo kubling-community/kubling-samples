@@ -1,0 +1,6 @@
+name: "synthetic-entities-sample"
+version: "1.0.0"
+description: "Deterministic nested documents used to demonstrate Kubling synthetic entities."
+innerDDLFilePath: "schema.sql"
+innerTranslatorConfigFilePath: "translator-config.yaml"
+handlersAutoDiscoveryPath: "handler"

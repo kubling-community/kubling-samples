@@ -1,0 +1,116 @@
+name: kubling-rbac
+
+services:
+  descriptor-builder:
+    image: docker.io/kubling/kubling-cli:latest
+    command:
+      - bundle
+      - genmod
+      - /descriptor
+      - --output
+      - /bundle/rbac-descriptor.zip
+      - --parse
+    volumes:
+      - ./descriptor:/descriptor:ro
+      - descriptor-bundle:/bundle
+
+  provider:
+    image: docker.io/kubling/inmemory-provider:latest
+    expose:
+      - "50051"
+
+  provider-readiness:
+    image: docker.io/fullstorydev/grpcurl:latest
+    command:
+      - -plaintext
+      - -d
+      - "{}"
+      - provider:50051
+      - kubling.provider.v1.ProviderService/Health
+    depends_on:
+      provider:
+        condition: service_started
+    restart: "on-failure:30"
+
+  kubling:
+    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:latest}
+    environment:
+      APP_CONFIG: /sample/app-config.yaml
+      DESCRIPTOR_BUNDLE: /sample/bundle/rbac-descriptor.zip
+      ENABLE_WEB_CONSOLE: "true"
+      MAIN_HTTP_PORT: "8282"
+      PROVIDER_HOST: provider
+      PROVIDER_PORT: "50051"
+    depends_on:
+      descriptor-builder:
+        condition: service_completed_successfully
+      provider-readiness:
+        condition: service_completed_successfully
+    ports:
+      - "8284:8282"
+    expose:
+      - "35432"
+    volumes:
+      - ./app-config.yaml:/sample/app-config.yaml:ro
+      - descriptor-bundle:/sample/bundle:ro
+
+  stack-readiness:
+    image: docker.io/curlimages/curl:latest
+    entrypoint: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
+    depends_on:
+      kubling:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - http://kubling:8282/observe/health
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  sql-client:
+    image: docker.io/library/postgres:latest
+    profiles:
+      - client
+    environment:
+      PGCONNECT_TIMEOUT: "8"
+      PGPASSWORD: ${RBAC_PASSWORD:-reader-pass}
+      PGSSLMODE: disable
+    depends_on:
+      stack-readiness:
+        condition: service_healthy
+    entrypoint:
+      - psql
+      - --host
+      - kubling
+      - --port
+      - "35432"
+      - --dbname
+      - RbacVDB
+      - --no-password
+      - --tuples-only
+      - --no-align
+
+  smoke-test:
+    image: docker.io/library/postgres:latest
+    profiles:
+      - test
+    environment:
+      KUBLING_HOST: kubling
+      KUBLING_PORT: "35432"
+      KUBLING_VDB: RbacVDB
+      PGCONNECT_TIMEOUT: "8"
+      PGSSLMODE: disable
+    depends_on:
+      stack-readiness:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/scripts/smoke-test.sh"]
+    volumes:
+      - ./scripts/smoke-test.sh:/scripts/smoke-test.sh:ro
+
+volumes:
+  descriptor-bundle:

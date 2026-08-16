@@ -1,0 +1,21 @@
+---
+name: "JavaScriptVDB"
+version: "1"
+
+dataSources:
+  - name: "javascript"
+    description: "Deterministic task documents served by a local JavaScript module."
+    dataSourceType: "SCRIPT_DOCUMENT_JS"
+    configObject:
+      module:
+        zipFilePath: "{{ JAVASCRIPT_MODULE_BUNDLE }}"
+      cache:
+        enabled: false
+      contributesToHealth: true
+    schema:
+      type: "PHYSICAL"
+      ddlFilePaths:
+        - "module:/schema.sql"
+      cacheDefaultStrategy: "NO_CACHE"
+
+rbacDataRoles: []

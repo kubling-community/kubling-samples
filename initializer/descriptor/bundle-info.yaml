@@ -1,2 +1,2 @@
 virtualDatabases:
-  - 'vdb/ApplicationVDB.yaml'
+  - "vdb/InitializerVDB.yaml"

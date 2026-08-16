@@ -1,2 +1,0 @@
-module:
-  zipFilePath: "{{ MODULE_BUNDLE }}"
