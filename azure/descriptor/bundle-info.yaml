@@ -1,5 +1,0 @@
-virtualDatabases:
-  - 'vdb/AzureVDB.yaml'
-sqlFunctionModules:
-   - name: "az_func"
-     zipFilePath: "{{ SQL_FUNCTIONS_BUNDLE }}"
