@@ -3,3 +3,5 @@ functions:
     params:
       - taskId
     scriptFilePath: "fn/validate_task_id.js"
+    parallelContexts: 2
+    maxWaitMilliseconds: 10000

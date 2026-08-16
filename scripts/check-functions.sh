@@ -74,6 +74,8 @@ grep -Fq 'actionTemplatesFunctionModules:' "${descriptor_info}"
 grep -Fq 'name: "task_label"' "${sql_module_info}"
 grep -Fq 'isDeterministic: true' "${sql_module_info}"
 grep -Fq 'name: "validate_task_id"' "${template_module_info}"
+grep -Fq 'parallelContexts: 2' "${template_module_info}"
+grep -Fq 'maxWaitMilliseconds: 10000' "${template_module_info}"
 grep -Fq 'templates__validate_task_id' functions/descriptor/endpoint/queries/get_task_label.yaml
 grep -Fq 'task_label(id, title)' functions/descriptor/endpoint/queries/get_task_label.yaml
 
