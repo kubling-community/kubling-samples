@@ -37,12 +37,6 @@ Only include directories the sample actually needs. Its README must state:
 - how to stop it and remove its state; and
 - any limitation that prevents automated end-to-end validation.
 
-## Legacy references
-
-Some directories are temporarily retained as source material because they contain useful examples of advanced Kubling behavior. Their README starts with a `Legacy reference` warning.
-
-A legacy reference is not a supported deployment recipe. Do not remove its warning until the sample satisfies this contribution contract, uses the current provider architecture where applicable, and has been validated against its declared Kubling version. Modernize one capability at a time instead of preserving a large historical scenario unchanged.
-
 ## Providers and JavaScript
 
 Examples that demonstrate a data provider must register it as `PROVIDER_GRPC` and use a separately running provider image. Provider-owned physical schema must be imported through the provider contract rather than duplicated in the VDB descriptor.
@@ -64,7 +58,7 @@ Commit the source needed to reproduce an artifact. If a sample needs a bundle, i
 ## Versions and images
 
 - Pin Kubling and provider images in supported samples to exact release versions.
-- Do not introduce `latest` or an untagged image reference. Remove inherited uses when modernizing a legacy reference.
+- Do not introduce `latest` or an untagged image reference.
 - Prefer a digest in the canonical quickstart after official release digests are confirmed.
 - Keep the compatible Kubling version visible in the sample README.
 
