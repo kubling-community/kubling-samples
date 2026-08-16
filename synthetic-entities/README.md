@@ -1,6 +1,6 @@
 # Synthetic Entities Sample
 
-This sample shows how Kubling 26.4 exposes an array inside a document as a relational table and maps a SQL mutation back into the parent document.
+This sample shows how Kubling exposes an array inside a document as a relational table and maps a SQL mutation back into the parent document.
 
 The JavaScript data source owns one deterministic `PROJECT` document:
 

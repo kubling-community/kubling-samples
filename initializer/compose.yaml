@@ -2,7 +2,7 @@ name: kubling-initializer
 
 services:
   descriptor-builder:
-    image: docker.io/kubling/kubling-cli:26.2
+    image: docker.io/kubling/kubling-cli:latest
     command:
       - bundle
       - genmod
@@ -15,7 +15,7 @@ services:
       - generated-bundles:/bundle
 
   module-builder:
-    image: docker.io/kubling/kubling-cli:26.2
+    image: docker.io/kubling/kubling-cli:latest
     command:
       - bundle
       - genmod
@@ -28,7 +28,7 @@ services:
       - generated-bundles:/bundle
 
   kubling:
-    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:26.4}
+    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:latest}
     environment:
       APP_CONFIG: /initializer/app-config.yaml
       DESCRIPTOR_BUNDLE: /initializer/bundle/initializer-descriptor.zip
@@ -47,7 +47,7 @@ services:
       - generated-bundles:/initializer/bundle:ro
 
   stack-readiness:
-    image: docker.io/curlimages/curl:8.16.0
+    image: docker.io/curlimages/curl:latest
     entrypoint: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
     depends_on:
       kubling:
@@ -65,7 +65,7 @@ services:
       retries: 60
 
   smoke-test:
-    image: docker.io/curlimages/curl:8.16.0
+    image: docker.io/curlimages/curl:latest
     profiles:
       - test
     environment:

@@ -1,6 +1,6 @@
 # JavaScript Data Source Sample
 
-This sample shows how Kubling 26.4 loads a JavaScript data source from a generated module bundle. It is deliberately self-contained: the JavaScript module returns deterministic task documents and does not call an external API.
+This sample shows how Kubling loads a JavaScript data source from a generated module bundle. It is deliberately self-contained: the JavaScript module returns deterministic task documents and does not call an external API.
 
 The sample demonstrates:
 

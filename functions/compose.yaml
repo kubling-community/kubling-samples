@@ -2,7 +2,7 @@ name: kubling-functions
 
 services:
   descriptor-builder:
-    image: docker.io/kubling/kubling-cli:26.2
+    image: docker.io/kubling/kubling-cli:latest
     command:
       - bundle
       - genmod
@@ -15,7 +15,7 @@ services:
       - generated-bundles:/bundle
 
   sql-functions-builder:
-    image: docker.io/kubling/kubling-cli:26.2
+    image: docker.io/kubling/kubling-cli:latest
     command:
       - bundle
       - genmod
@@ -28,7 +28,7 @@ services:
       - generated-bundles:/bundle
 
   template-functions-builder:
-    image: docker.io/kubling/kubling-cli:26.2
+    image: docker.io/kubling/kubling-cli:latest
     command:
       - bundle
       - genmod
@@ -41,12 +41,12 @@ services:
       - generated-bundles:/bundle
 
   provider:
-    image: docker.io/kubling/inmemory-provider:v0.0.1
+    image: docker.io/kubling/inmemory-provider:latest
     expose:
       - "50051"
 
   provider-readiness:
-    image: docker.io/fullstorydev/grpcurl:v1.9.3
+    image: docker.io/fullstorydev/grpcurl:latest
     command:
       - -plaintext
       - -d
@@ -59,7 +59,7 @@ services:
     restart: "on-failure:30"
 
   kubling:
-    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:26.4}
+    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:latest}
     environment:
       APP_CONFIG: /functions/app-config.yaml
       DESCRIPTOR_BUNDLE: /functions/bundle/functions-descriptor.zip
@@ -85,7 +85,7 @@ services:
       - generated-bundles:/functions/bundle:ro
 
   stack-readiness:
-    image: docker.io/curlimages/curl:8.16.0
+    image: docker.io/curlimages/curl:latest
     entrypoint: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
     depends_on:
       kubling:
@@ -103,7 +103,7 @@ services:
       retries: 60
 
   smoke-test:
-    image: docker.io/curlimages/curl:8.16.0
+    image: docker.io/curlimages/curl:latest
     profiles:
       - test
     environment:

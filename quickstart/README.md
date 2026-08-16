@@ -1,4 +1,4 @@
-# Kubling 26.4 Quickstart
+# Kubling Quickstart
 
 Run Kubling, Kubling Studio, and the official In-memory provider as one disposable Docker Compose project.
 
@@ -22,17 +22,17 @@ Compose generates the descriptor bundle into a named volume, verifies the provid
 
 Open Kubling Studio at <http://localhost:8282/console>.
 
-The 26.4 Studio login form requires non-empty values even when the VDB has no authentication delegate. For this local stack you can enter `quickstart` for both fields; they are not external credentials and are not persisted by this repository.
+The Studio login form requires non-empty values even when the VDB has no authentication delegate. For this local stack you can enter `quickstart` for both fields; they are not external credentials and are not persisted by this repository.
 
 ## Runtime contract
 
 | Item | Value |
 |:--|:--|
-| Kubling image | `docker.io/kubling/kubling:26.4` |
-| Provider image | `docker.io/kubling/inmemory-provider:v0.0.1` |
-| Descriptor builder | `docker.io/kubling/kubling-cli:26.2` |
-| Provider health probe | `docker.io/fullstorydev/grpcurl:v1.9.3` |
-| HTTP readiness and smoke test | `docker.io/curlimages/curl:8.16.0` |
+| Kubling image | `docker.io/kubling/kubling:latest` |
+| Provider image | `docker.io/kubling/inmemory-provider:latest` |
+| Descriptor builder | `docker.io/kubling/kubling-cli:latest` |
+| Provider health probe | `docker.io/fullstorydev/grpcurl:latest` |
+| HTTP readiness and smoke test | `docker.io/curlimages/curl:latest` |
 | Studio | `http://localhost:8282/console` |
 | Health | `http://localhost:8282/observe/health` |
 | Published host ports | `8282` on loopback only |
@@ -42,8 +42,6 @@ The 26.4 Studio login form requires non-empty values even when the VDB has no au
 | Tables | `PROJECT`, `TASK`, `AUDIT_EVENT`, `TYPE_SAMPLE` |
 
 Kubling registers `provider` as `PROVIDER_GRPC`. The VDB contains no provider table DDL: Kubling imports the physical schema returned by the provider's `GetSchema` RPC.
-
-Release maintainers can override `KUBLING_IMAGE` locally when validating an unpublished build. The documented and CI-default contract remains the exact public `26.4` tag.
 
 When the stack is ready, the health URL returns HTTP `200` with aggregate status `UP`. Because `provider` contributes to aggregate health, that status also verifies the provider connection.
 

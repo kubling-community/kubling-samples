@@ -109,17 +109,15 @@ The smoke test removes any prior sample task, exercises the query endpoint, runs
 
 | Item | Value |
 |:--|:--|
-| Kubling image | `docker.io/kubling/kubling:26.4` |
-| Provider image | `docker.io/kubling/inmemory-provider:v0.0.1` |
-| Descriptor builder | `docker.io/kubling/kubling-cli:26.2` |
+| Kubling image | `docker.io/kubling/kubling:latest` |
+| Provider image | `docker.io/kubling/inmemory-provider:latest` |
+| Descriptor builder | `docker.io/kubling/kubling-cli:latest` |
 | VDB | `EndpointsVDB` |
 | Data source and schema | `provider` |
 | Provider table | `TASK` |
 | Published host port | `8283` on loopback only |
 | Provider gRPC | `provider:50051`, internal to Compose |
 | Health | `http://localhost:8283/observe/health` |
-
-Release maintainers can override `KUBLING_IMAGE` locally when validating an unpublished build. The documented and CI-default contract remains the exact public `26.4` tag.
 
 ## Cleanup
 

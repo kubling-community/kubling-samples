@@ -6,7 +6,7 @@ Runnable examples for Kubling. This repository provides the canonical first-run 
 
 ## Quickstart
 
-The supported 26.4 Quickstart runs Kubling, Kubling Studio, and the official In-memory provider with Docker Compose.
+The supported Quickstart runs Kubling, Kubling Studio, and the official In-memory provider with Docker Compose.
 
 ```bash
 cd quickstart
@@ -21,14 +21,14 @@ The Quickstart requires only Git, Docker Engine, and Docker Compose v2. It does 
 
 The repository also provides focused, independently runnable feature examples:
 
-| Directory | What it teaches | Current state |
+| Directory | What it teaches | Status |
 |:--|:--|:--|
-| `endpoints/` | Query endpoints, actions, mutations, and templates | Supported on 26.4 |
-| `rbac/` | Authentication, authorization, and data policies | Supported on 26.4 |
-| `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported on 26.4 |
-| `functions/` | SQL functions and custom template functions | Supported on 26.4 |
-| `initializer/` | Initialization and scheduled JavaScript behavior | Supported on 26.4 |
-| `synthetic-entities/` | Relational projections and mutations over nested document arrays | Supported on 26.4 |
+| `endpoints/` | Query endpoints, actions, mutations, and templates | Supported |
+| `rbac/` | Authentication, authorization, and data policies | Supported |
+| `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported |
+| `functions/` | SQL functions and custom template functions | Supported |
+| `initializer/` | Initialization and scheduled JavaScript behavior | Supported |
+| `synthetic-entities/` | Relational projections and mutations over nested document arrays | Supported |
 
 Provider-backed examples use `PROVIDER_GRPC`. A sample may intentionally use a JavaScript adapter when JavaScript itself is the lesson.
 
@@ -37,7 +37,7 @@ Provider-backed examples use `PROVIDER_GRPC`. A sample may intentionally use a J
 Every supported sample must:
 
 - teach one clear Kubling capability;
-- run independently with exact dependency versions;
+- run independently against the current public container images;
 - state prerequisites, startup, readiness, verification, expected results, and cleanup;
 - avoid external credentials and paid infrastructure unless that dependency is the lesson;
 - keep generated bundles and runtime state out of Git; and
@@ -49,15 +49,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution contract.
 
 Descriptor and module bundles are build output. ZIP files, compiled classes, JARs, database files, and runtime state must not be committed.
 
-Supported samples run an exact Kubling CLI image to generate descriptor and module bundles inside named Compose volumes. Contributors therefore do not need to install the CLI or a host-language toolchain.
+Supported samples run the official Kubling CLI image to generate descriptor and module bundles inside named Compose volumes. Contributors therefore do not need to install the CLI or a host-language toolchain.
 
-## Versioning
+## Compatibility
 
-Samples target an explicit Kubling release line. The first modernized baseline is `26.4`.
+The default branch tracks the current public Kubling release instead of a fixed release line.
 
-- Published image references use exact versions; `latest` and untagged images are not accepted.
-- The canonical Quickstart will also pin image digests once the public release digests are confirmed.
-- Repository release tags should identify the compatible Kubling line, for example `26.4.0` or `26.4.0-1` for a samples-only correction.
+- Compose files use the public `latest` images so the samples continue to follow new Kubling releases.
+- CI continuously validates those rolling images against every supported sample.
+- Git history and repository release tags preserve older states when a historical sample is needed.
 
 The repository is published as `kubling-community/kubling-samples`, a name that covers both the Quickstart and the advanced feature examples.
 

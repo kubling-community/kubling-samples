@@ -4,7 +4,7 @@ This sample demonstrates Kubling authentication and data-role authorization agai
 
 ## Contract
 
-The sample has no external database. Compose runs an exact PostgreSQL image only as a disposable `psql` client; the data source remains the official In-memory provider over gRPC.
+The sample has no external database. Compose runs PostgreSQL only as a disposable `psql` client; the data source remains the official In-memory provider over gRPC.
 
 The sample credentials are teaching fixtures:
 
@@ -17,10 +17,10 @@ The provider schema is imported through `GetSchema`; the VDB does not duplicate 
 
 | Item | Value |
 |:--|:--|
-| Kubling image | `docker.io/kubling/kubling:26.4` |
-| Provider image | `docker.io/kubling/inmemory-provider:v0.0.1` |
-| Descriptor builder | `docker.io/kubling/kubling-cli:26.2` |
-| Disposable SQL client | `docker.io/library/postgres:17.6-alpine3.22` |
+| Kubling image | `docker.io/kubling/kubling:latest` |
+| Provider image | `docker.io/kubling/inmemory-provider:latest` |
+| Descriptor builder | `docker.io/kubling/kubling-cli:latest` |
+| Disposable SQL client | `docker.io/library/postgres:latest` |
 | VDB/database | `RbacVDB` |
 | Data source and schema | `provider` |
 | Protected table | `TASK` |
@@ -107,8 +107,6 @@ RBAC smoke test passed.
 ```
 
 The GitHub workflow runs both the static contract and Docker E2E on pull requests and pushes that affect this sample.
-
-Release maintainers may override `KUBLING_IMAGE` in their local shell when validating an unpublished build. The documented and CI-default contract remains the exact public `26.4` tag.
 
 ## Requirements
 

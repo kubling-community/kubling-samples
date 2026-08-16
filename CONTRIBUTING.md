@@ -53,14 +53,14 @@ Do not commit generated or runtime artifacts, including:
 - logs, process IDs, and runtime-generated configuration; or
 - tool-specific build directories.
 
-Commit the source needed to reproduce an artifact. If a sample needs a bundle, its documented workflow must generate it locally. The canonical quickstart must do this with pinned container images so it does not add a host-language toolchain prerequisite.
+Commit the source needed to reproduce an artifact. If a sample needs a bundle, its documented workflow must generate it locally. The canonical quickstart must do this with the official containerized Kubling CLI so it does not add a host-language toolchain prerequisite.
 
-## Versions and images
+## Images and compatibility
 
-- Pin Kubling and provider images in supported samples to exact release versions.
-- Do not introduce `latest` or an untagged image reference.
-- Prefer a digest in the canonical quickstart after official release digests are confirmed.
-- Keep the compatible Kubling version visible in the sample README.
+- Use the public `latest` tag for every image declared by a supported sample.
+- Do not bind sample documentation to a specific Kubling release.
+- Keep image allowlists in the static checks aligned with each Compose file.
+- Validate all supported samples whenever a new Kubling release becomes public.
 
 ## Credentials and local configuration
 

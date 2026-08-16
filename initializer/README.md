@@ -1,6 +1,6 @@
 # Initialization and Scheduling Sample
 
-This sample shows how a Kubling 26.4 JavaScript data source can initialize shared state before accepting queries and update that state with a scheduled script.
+This sample shows how a Kubling JavaScript data source can initialize shared state before accepting queries and update that state with a scheduled script.
 
 The module exposes one row through `SCHEDULER_STATE`:
 

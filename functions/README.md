@@ -1,6 +1,6 @@
 # Functions Sample
 
-This sample shows how Kubling 26.4 loads JavaScript functions from independently generated modules. It combines two related extension points:
+This sample shows how Kubling loads JavaScript functions from independently generated modules. It combines two related extension points:
 
 - `task_label`, a deterministic SQL user-defined function invoked from a query; and
 - `validate_task_id`, a custom template function that validates a task identifier for a query endpoint.
