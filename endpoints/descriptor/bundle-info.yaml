@@ -1,4 +1,4 @@
 virtualDatabases:
-  - 'vdb/KubernetesVDB.yaml'
-queryEndpointsDirectory: 'endpoint/queries'
-actionsDirectory: 'endpoint/actions'
+  - "vdb/EndpointsVDB.yaml"
+queryEndpointsDirectory: "endpoint/queries"
+actionsDirectory: "endpoint/actions"

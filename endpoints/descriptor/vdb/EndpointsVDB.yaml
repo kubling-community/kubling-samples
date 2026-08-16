@@ -1,0 +1,21 @@
+---
+name: "EndpointsVDB"
+version: "1"
+
+dataSources:
+  - name: "provider"
+    description: "Deterministic task data owned by the official Kubling In-memory provider."
+    dataSourceType: "PROVIDER_GRPC"
+    configObject:
+      address: "{{ PROVIDER_HOST }}"
+      port: {{ PROVIDER_PORT }}
+      securityConfig:
+        mode: "PLAINTEXT"
+      cache:
+        enabled: false
+      contributesToHealth: true
+    schema:
+      type: "PHYSICAL"
+      cacheDefaultStrategy: "NO_CACHE"
+
+rbacDataRoles: []

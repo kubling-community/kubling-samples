@@ -1,12 +1,40 @@
+instanceName: "kubling-endpoints-sample"
+
 transports:
-  pgProtocol:
-    bindAddress: "0.0.0.0"
-    portNumber: 35432
   nativeProtocol:
+    enable: false
     bindAddress: "0.0.0.0"
     portNumber: 35482
     secure: false
-vdb:
-  descriptorBundle: {{ DESCRIPTOR_BUNDLE }}
+  grpc:
+    enable: false
+    bindAddress: "0.0.0.0"
+    portNumber: 50061
+    secure: false
+  pgProtocol:
+    enable: false
+    bindAddress: "0.0.0.0"
+    portNumber: 35432
+    secure: false
 
-propertiesFilePath: {{ PROPS_FILE }}
+vdb:
+  descriptorBundle: "{{ DESCRIPTOR_BUNDLE }}"
+
+management:
+  enableRestartEndpoint: false
+
+cache:
+  enableInvalidateEndpoint: false
+
+buffer:
+  useDisk: false
+
+softTransactions:
+  enabled: false
+  crashCompensationEnabled: false
+
+kublingAgent:
+  enabled: false
+
+performanceTracer:
+  enabled: false
