@@ -1,4 +1,5 @@
 virtualDatabases:
-  - 'vdb/ApplicationVDB.yaml'
+  - "vdb/RbacVDB.yaml"
+
 authentication:
   scriptFilePath: "auth/authenticator.js"

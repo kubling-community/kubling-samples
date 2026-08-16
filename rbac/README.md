@@ -1,54 +1,127 @@
-# Authentication Sample
+# RBAC Sample
 
-Goal
-: Get familiar with the RBAC authentication and authorization extension mechanism.
+This sample demonstrates Kubling authentication and data-role authorization against the official In-memory gRPC provider. A JavaScript authentication delegate maps two deterministic local users to external roles, and `RbacVDB` grants each role a different set of permissions on `provider.TASK`.
 
-Difficulty
-: Low
+## Contract
 
-## How to test it
+The sample has no external database. Compose runs an exact PostgreSQL image only as a disposable `psql` client; the data source remains the official In-memory provider over gRPC.
 
-### 1. Generate bundle files
-Execute [the gen-bundle script](gen-bundles.sh) to generate the zip files.
-<br/>
-This example uses minimal module, so also run [its gen-bundle script to generate the module](../minimal/gen-bundles.sh)
+The sample credentials are teaching fixtures:
 
-### 2. Point the source model to the JavaScript Module bundle 
-Edit [VDB Scripting configuration file](descriptor/vdb/scripting/js-config.yaml) and add the URI of the 
-`main-module-bundle.zip`, generated in the previous step, to property `zipFilePath`.
+| User | Password | External role | Access to `provider.TASK` |
+|:--|:--|:--|:--|
+| `reader` | `reader-pass` | `ROLE_TASK_READER` | Read only |
+| `editor` | `editor-pass` | `ROLE_TASK_EDITOR` | Read and update |
 
-### 3. app-config
-Point `descriptorBundle` to the file generated in the first step, called `rbac-descriptor-bundle.zip`.
+The provider schema is imported through `GetSchema`; the VDB does not duplicate its DDL.
 
-### 4. Run container
-This sample works well with our Community Edition, just replace the environment variables and run:
+| Item | Value |
+|:--|:--|
+| Kubling image | `docker.io/kubling/kubling:26.4` |
+| Provider image | `docker.io/kubling/inmemory-provider:v0.0.1` |
+| Descriptor builder | `docker.io/kubling/kubling-cli:26.2` |
+| Disposable SQL client | `docker.io/library/postgres:17.6-alpine3.22` |
+| VDB/database | `RbacVDB` |
+| Data source and schema | `provider` |
+| Protected table | `TASK` |
+| Published host port | `8284`, health only, on loopback |
+| Kubling SQL transport | `kubling:35432`, internal to Compose |
+| Provider gRPC | `provider:50051`, internal to Compose |
+| Health | `http://localhost:8284/observe/health` |
 
-```
-docker run --rm \ 
-    -e DESCRIPTOR_BUNDLE=[/path/to/rbac-descriptor-bundle.zip] \
-    -e APP_CONFIG=[/path/to/app-config.yaml] \
-    -e MODULE_BUNDLE=[/path/to/main-module-bundle.zip] \
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -v [/path/to/dbvirt-samples]:[mount/path] \
-    kubling/kubling:latest
-```
+## Walkthrough
 
-Or, assuming that you cloned the repo in `~/dbvirt-samples`, just run:
-```
-docker run --rm \
-    -e DESCRIPTOR_BUNDLE=/dbvirt-samples/rbac/rbac-descriptor-bundle.zip \
-    -e APP_CONFIG=/dbvirt-samples/rbac/app-config.yaml \
-    -e MODULE_BUNDLE=/dbvirt-samples/minimal/modules/main-module-bundle.zip \
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -v ~/dbvirt-samples:/dbvirt-samples \
-    kubling/kubling:latest
+Start the stack from this directory:
+
+```bash
+docker compose up --wait
 ```
 
-### 5. Queries
-Once the container is running, run `psql -h localhost -p 35432 -U [user] -d application` in a terminal. 
+First, the reader can see the deterministic task:
 
-Replace `[user]` by `sa`, `scout` and `baddie` and try to perform `SELECT`, `INSERT`, `UPDATE` and `DELETE`
-operations in order to see how data role mappings work.
+```bash
+docker compose run --rm sql-client \
+  --username reader \
+  --command "SELECT id, title, completed FROM provider.TASK WHERE id = 'task-2'"
+```
 
-In a real world deployment, user login is performed in an identity and access management 
-system such as Keycloak or Microsoft Entra ID through the authenticator, and roles are also defined in (and fetched from) there.
+Expected row:
+
+```text
+task-2|Build in-memory provider|f
+```
+
+`psql` renders PostgreSQL boolean values as `f` and `t` in unaligned output.
+
+The same user must be denied this mutation, and the row must remain unchanged:
+
+```bash
+docker compose run --rm sql-client \
+  --username reader \
+  --command "UPDATE provider.TASK SET completed = true WHERE id = 'task-2'"
+```
+
+The editor must be allowed to apply it:
+
+```bash
+RBAC_PASSWORD=editor-pass docker compose run --rm sql-client \
+  --username editor \
+  --command "UPDATE provider.TASK SET completed = true WHERE id = 'task-2'"
+```
+
+A subsequent reader query must return:
+
+```text
+task-2|Build in-memory provider|t
+```
+
+Restore the deterministic state with the editor before finishing:
+
+```bash
+RBAC_PASSWORD=editor-pass docker compose run --rm sql-client \
+  --username editor \
+  --command "UPDATE provider.TASK SET completed = false WHERE id = 'task-2'"
+```
+
+## Automated validation
+
+With the stack running, execute:
+
+```bash
+docker compose --profile test run --rm smoke-test
+```
+
+Every client connection has an eight-second timeout, so a broken transport fails instead of hanging indefinitely. The smoke test must verify all of these behaviors:
+
+- invalid credentials are rejected;
+- `reader` can read deterministic `task-2`;
+- `reader` cannot update it;
+- the failed reader update does not change provider state;
+- `editor` can update it; and
+- the test restores `task-2` to its original state.
+
+Only this final output constitutes a pass:
+
+```text
+RBAC smoke test passed.
+```
+
+The GitHub workflow runs both the static contract and Docker E2E on pull requests and pushes that affect this sample.
+
+Release maintainers may override `KUBLING_IMAGE` in their local shell when validating an unpublished build. The documented and CI-default contract remains the exact public `26.4` tag.
+
+## Requirements
+
+- Git;
+- Docker Engine; and
+- Docker Compose v2.
+
+You do not need Go, Java, Kubernetes, source credentials, a database server, or a host-installed SQL client.
+
+## Cleanup
+
+Remove containers, the network, and the generated descriptor volume with:
+
+```bash
+docker compose down --volumes --remove-orphans
+```

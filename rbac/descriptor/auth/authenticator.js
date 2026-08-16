@@ -1,30 +1,13 @@
-import { logIt } from "./audit_auth";
-
-logIt(auth.userName);
-
-// In this case we assume that the user name matches with the only principal associated to the subject.
-// The subject is the entity that initiated the connection request, which may have multiple
-// identities within an organization. Each identity is informed as a Principal, which are the identifiers propagated
-// to the engine.
-auth.addPrincipal(auth.userName);
-
-// Add all roles associated to principals. Please note that, in order to have a real fine-grained RBAC, roles are the
-// most important part of the auth chain.
-if (auth.userName === "sa") {
-    // matches 'full_control'
+if (auth.authenticationSource.value() !== "SOCKET_TRANSPORT") {
+    auth.bad("This sample accepts Kubling socket-transport authentication only.");
+} else if (auth.userName === "reader" && auth.credentials === "reader-pass") {
+    auth.addPrincipal(auth.userName);
+    auth.addRole("ROLE_TASK_READER");
     auth.trust();
-    auth.addRole("ROLE_FULL");
-    auth.addRole("ROLE_FULL2");
-} else if (auth.userName === "reader") {
-    // matches 'only_read'
+} else if (auth.userName === "editor" && auth.credentials === "editor-pass") {
+    auth.addPrincipal(auth.userName);
+    auth.addRole("ROLE_TASK_EDITOR");
     auth.trust();
-    auth.addRole("ROLE_ONLY_READ");
-} else if (auth.userName === "scout") {
-    // does not match any mapped roles
-    auth.trust();
-    auth.addRole("BAD_ROLE");
-} else if (auth.userName === "baddie") {
-    auth.locked("Don't even try it again!")
 } else {
-    auth.bad();
+    auth.bad("Invalid sample credentials.");
 }
