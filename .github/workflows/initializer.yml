@@ -1,0 +1,51 @@
+name: Initializer
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/initializer.yml"
+      - "initializer/**"
+      - "scripts/check-initializer.sh"
+  push:
+    paths:
+      - ".github/workflows/initializer.yml"
+      - "initializer/**"
+      - "scripts/check-initializer.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: initializer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  initializer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Validate static contract
+        run: bash scripts/check-initializer.sh
+
+      - name: Start Initializer sample
+        working-directory: initializer
+        run: docker compose up --wait --wait-timeout 180
+
+      - name: Run initialization and scheduling smoke test
+        working-directory: initializer
+        run: docker compose --profile test run --rm --no-deps smoke-test
+
+      - name: Show logs after failure
+        if: failure()
+        working-directory: initializer
+        run: docker compose logs --no-color
+
+      - name: Remove Initializer sample
+        if: always()
+        working-directory: initializer
+        run: docker compose down --volumes --remove-orphans

@@ -1,0 +1,21 @@
+---
+name: "InitializerVDB"
+version: "1"
+
+dataSources:
+  - name: "initializer"
+    description: "Deterministic state managed by JavaScript initialization and scheduled scripts."
+    dataSourceType: "SCRIPT_DOCUMENT_JS"
+    configObject:
+      module:
+        zipFilePath: "{{ INITIALIZER_MODULE_BUNDLE }}"
+      cache:
+        enabled: false
+      contributesToHealth: true
+    schema:
+      type: "PHYSICAL"
+      ddlFilePaths:
+        - "module:/schema.sql"
+      cacheDefaultStrategy: "NO_CACHE"
+
+rbacDataRoles: []

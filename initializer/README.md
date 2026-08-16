@@ -1,54 +1,80 @@
-# Authentication Sample
+# Initialization and Scheduling Sample
 
-> [!WARNING]
-> Legacy reference: this initializer and scheduler example is not validated with Kubling 26.4, and its image and bundle commands are obsolete. The JavaScript lifecycle code remains useful source material. Start with the [supported Quickstart](../quickstart/README.md).
+This sample shows how a Kubling 26.4 JavaScript data source can initialize shared state before accepting queries and update that state with a scheduled script.
 
-Goal
-: Use initializing and scheduling to keep a token up-to-date that we to pass all JS contexts.<br/>
-In a real world use case, we could use this feature to avoid having to incorporate the logic of getting and verifying access
-tokens and refreshing them in scripts like the `authenticator`, by keeping one global-scoped token per service, injected in all context's threads.
+The module exposes one row through `SCHEDULER_STATE`:
 
-Difficulty
-: Low
+- the initialization script creates generation `0` and token `token-0`;
+- the scheduled script advances the generation every two seconds; and
+- the table handler reads the current state from Kubling's shared thread-safe key/value store.
 
-## How to test it
+The generation and token are stored together as one JSON value, so readers never observe a token from a different generation.
 
-### 1. Generate bundle files
-Execute [the gen-bundle script](gen-bundles.sh) to generate the zip files.
+## Source map
 
-### 2. Point the source model to the JavaScript Module bundle 
-Edit [VDB Scripting configuration file](descriptor/vdb/scripting/js-config.yaml) and add the URI of the 
-`main-module-bundle.zip`, generated in the previous step, to property `zipFilePath`.
+- `module/init/initialize_state.js` establishes the state and reports successful initialization.
+- `module/scheduled/advance_state.js` advances it on a six-field cron schedule.
+- `module/handler/SCHEDULER_STATE.js` exposes the current value as a table row.
+- `module/bundle-script-info.yaml` connects the lifecycle scripts, handler directory, DDL, and translator configuration.
 
-### 3. app-config
-Point `descriptorBundle` to the file generated in the first step, called `rbac-descriptor-bundle.zip`.
+## Prerequisites
 
-### 4. Run container
-This sample works well with our Community Edition, just replace the environment variables and run:
+- Git
+- Docker Engine
+- Docker Compose v2
 
-```
-docker run --rm \ 
-    -e DESCRIPTOR_BUNDLE=[/path/to/rbac-descriptor-bundle.zip] \
-    -e APP_CONFIG=[/path/to/app-config.yaml] \
-    -e MODULE_BUNDLE=[/path/to/main-module-bundle.zip] \
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -v [/path/to/dbvirt-samples]:[mount/path] \
-    kubling/kubling:latest
+No Node.js, Java, database, credentials, or Kubernetes cluster is required on the host.
+
+## Start
+
+```bash
+cd initializer
+docker compose up --wait
 ```
 
-Or, assuming that you cloned the repo in `~/dbvirt-samples`, just run:
-```
-docker run --rm \
-    -e DESCRIPTOR_BUNDLE=/dbvirt-samples/initializer/initializer-descriptor-bundle.zip \
-    -e APP_CONFIG=/dbvirt-samples/initializer/app-config.yaml \
-    -e MODULE_BUNDLE=/dbvirt-samples/initializer/modules/tokenbased-module-bundle.zip \
-    -p 35432:35432 -p 35482:35482 -p 8282:8282 \
-    -v ~/dbvirt-samples:/dbvirt-samples \
-    kubling/kubling:latest
+Compose generates the descriptor and JavaScript module bundles with an exact Kubling CLI image. Generated ZIP files live only in a named volume and are not committed.
+
+When the stack is ready:
+
+- Kubling Studio: <http://localhost:8282/console>
+- Health endpoint: <http://localhost:8282/observe/health>
+- VDB: `InitializerVDB`
+- schema/data source: `initializer`
+- table: `SCHEDULER_STATE`
+
+## Observe the lifecycle
+
+Open Kubling Studio and run:
+
+```sql
+SELECT id, generation, token
+FROM initializer.SCHEDULER_STATE;
 ```
 
-### 5. Queries
-Once the container is running, run `psql -h localhost -p 35432 -U sa -d DB` in a terminal. Type any password,
-we are not authenticating users in the example.
+The result always contains one coherent row:
 
-Run `SELECT * FROM MY_TOKEN;` right after the engine starts, wait 10+ seconds and run it again, pay attention to field `token__decrypted`
+| id | generation | token |
+|:--|--:|:--|
+| `scheduler` | `n` | `token-n` |
+
+Run the query again after two seconds. The generation will be greater and the token suffix will match it. The exact generation depends on how long the stack has been running.
+
+## Automated verification
+
+Run the same lifecycle assertions used by CI:
+
+```bash
+docker compose --profile test run --rm --no-deps smoke-test
+```
+
+Static checks are available from the repository root:
+
+```bash
+bash scripts/check-initializer.sh
+```
+
+## Cleanup
+
+```bash
+docker compose down --volumes --remove-orphans
+```
