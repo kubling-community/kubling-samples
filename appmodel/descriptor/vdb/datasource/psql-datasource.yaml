@@ -1,5 +1,0 @@
-dataSourceName: "app"
-serverAddress: {{ PG_ADDRESS }}
-serverPort: 5432
-userName: {{ PG_USER }}
-token: {{ PG_PASS }}

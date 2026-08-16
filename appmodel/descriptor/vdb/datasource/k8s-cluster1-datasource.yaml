@@ -1,4 +1,0 @@
-masterUrl: "{{ kubernetes_cluster_1_api_url }}"
-# We do recommend using a real Kubernetes in order to see the engine in real action.
-# See README to get info on how to easily deploy a k3s
-#configFile:
