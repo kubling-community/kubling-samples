@@ -1,0 +1,82 @@
+name: kubling-synthetic-entities
+
+services:
+  descriptor-builder:
+    image: docker.io/kubling/kubling-cli:26.2
+    command:
+      - bundle
+      - genmod
+      - /descriptor
+      - --output
+      - /bundle/synthetic-entities-descriptor.zip
+      - --parse
+    volumes:
+      - ./descriptor:/descriptor:ro
+      - generated-bundles:/bundle
+
+  module-builder:
+    image: docker.io/kubling/kubling-cli:26.2
+    command:
+      - bundle
+      - genmod
+      - /module
+      - --output
+      - /bundle/synthetic-entities-module.zip
+      - --parse
+    volumes:
+      - ./module:/module:ro
+      - generated-bundles:/bundle
+
+  kubling:
+    image: ${KUBLING_IMAGE:-docker.io/kubling/kubling:26.4}
+    environment:
+      APP_CONFIG: /synthetic-entities/app-config.yaml
+      DESCRIPTOR_BUNDLE: /synthetic-entities/bundle/synthetic-entities-descriptor.zip
+      ENABLE_WEB_CONSOLE: "true"
+      MAIN_HTTP_PORT: "8282"
+      SYNTHETIC_ENTITIES_MODULE_BUNDLE: /synthetic-entities/bundle/synthetic-entities-module.zip
+    depends_on:
+      descriptor-builder:
+        condition: service_completed_successfully
+      module-builder:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8282:8282"
+    volumes:
+      - ./app-config.yaml:/synthetic-entities/app-config.yaml:ro
+      - generated-bundles:/synthetic-entities/bundle:ro
+
+  stack-readiness:
+    image: docker.io/curlimages/curl:8.16.0
+    entrypoint: ["/bin/sh", "-c", "while true; do sleep 3600; done"]
+    depends_on:
+      kubling:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - http://kubling:8282/observe/health
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  smoke-test:
+    image: docker.io/curlimages/curl:8.16.0
+    profiles:
+      - test
+    environment:
+      KUBLING_BASE_URL: http://kubling:8282
+      KUBLING_VDB: SyntheticEntitiesVDB
+    depends_on:
+      stack-readiness:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/scripts/smoke-test.sh"]
+    volumes:
+      - ./scripts/smoke-test.sh:/scripts/smoke-test.sh:ro
+
+volumes:
+  generated-bundles:

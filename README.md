@@ -28,7 +28,7 @@ The repository also provides focused feature examples. Entries marked as legacy 
 | `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported on 26.4 |
 | `functions/` | SQL functions and custom template functions | Supported on 26.4 |
 | `initializer/` | Initialization and scheduled JavaScript behavior | Supported on 26.4 |
-| `documents/` | Nested-document and synthetic-entity handling | Retain and modernize |
+| `synthetic-entities/` | Relational projections and mutations over nested document arrays | Supported on 26.4 |
 | `appmodel/` | Functions, endpoints, orchestration, and federation | Reference only; decompose into smaller samples |
 | `hibernate/` | JDBC, JPA, Hibernate, and Testcontainers integration | Retain for a separate compatibility decision |
 

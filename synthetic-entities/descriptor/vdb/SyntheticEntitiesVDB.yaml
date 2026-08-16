@@ -1,0 +1,21 @@
+---
+name: "SyntheticEntitiesVDB"
+version: "1"
+
+dataSources:
+  - name: "synthetic"
+    description: "Deterministic nested project documents exposed through a synthetic child table."
+    dataSourceType: "SCRIPT_DOCUMENT_JS"
+    configObject:
+      module:
+        zipFilePath: "{{ SYNTHETIC_ENTITIES_MODULE_BUNDLE }}"
+      cache:
+        enabled: false
+      contributesToHealth: true
+    schema:
+      type: "PHYSICAL"
+      ddlFilePaths:
+        - "module:/schema.sql"
+      cacheDefaultStrategy: "NO_CACHE"
+
+rbacDataRoles: []
