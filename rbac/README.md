@@ -24,7 +24,7 @@ The provider schema is imported through `GetSchema`; the VDB does not duplicate 
 | VDB/database | `RbacVDB` |
 | Data source and schema | `provider` |
 | Protected table | `TASK` |
-| Published host port | `8284`, health only, on loopback |
+| Published host port | `8284`, health only, on all host interfaces |
 | Kubling SQL transport | `kubling:35432`, internal to Compose |
 | Provider gRPC | `provider:50051`, internal to Compose |
 | Health | `http://localhost:8284/observe/health` |

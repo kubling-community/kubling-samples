@@ -79,7 +79,7 @@ services:
       template-functions-builder:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8282:8282"
+      - "8282:8282"
     volumes:
       - ./app-config.yaml:/functions/app-config.yaml:ro
       - generated-bundles:/functions/bundle:ro

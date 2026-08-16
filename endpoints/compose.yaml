@@ -47,7 +47,7 @@ services:
       provider-readiness:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8283:8282"
+      - "8283:8282"
     volumes:
       - ./app-config.yaml:/sample/app-config.yaml:ro
       - descriptor-bundle:/sample/bundle:ro

@@ -41,7 +41,7 @@ services:
       module-builder:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8282:8282"
+      - "8282:8282"
     volumes:
       - ./app-config.yaml:/javascript/app-config.yaml:ro
       - generated-bundles:/javascript/bundle:ro

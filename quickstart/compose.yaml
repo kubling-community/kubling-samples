@@ -47,7 +47,7 @@ services:
       provider-readiness:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8282:8282"
+      - "8282:8282"
     volumes:
       - ./app-config.yaml:/quickstart/app-config.yaml:ro
       - descriptor-bundle:/quickstart/bundle:ro

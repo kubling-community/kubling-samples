@@ -115,7 +115,7 @@ The smoke test removes any prior sample task, exercises the query endpoint, runs
 | VDB | `EndpointsVDB` |
 | Data source and schema | `provider` |
 | Provider table | `TASK` |
-| Published host port | `8283` on loopback only |
+| Published host port | `8283` on all host interfaces |
 | Provider gRPC | `provider:50051`, internal to Compose |
 | Health | `http://localhost:8283/observe/health` |
 

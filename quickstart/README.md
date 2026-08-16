@@ -35,7 +35,7 @@ The Studio login form requires non-empty values even when the VDB has no authent
 | HTTP readiness and smoke test | `docker.io/curlimages/curl:latest` |
 | Studio | `http://localhost:8282/console` |
 | Health | `http://localhost:8282/observe/health` |
-| Published host ports | `8282` on loopback only |
+| Published host port | `8282` on all host interfaces |
 | Provider gRPC | `provider:50051`, internal to Compose |
 | VDB | `ProviderQuickstartVDB` |
 | Data source and schema | `provider` |
