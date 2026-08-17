@@ -1,29 +1,29 @@
 # Initialization and Scheduling Sample
 
-This sample shows how a Kubling JavaScript data source can initialize shared state before accepting queries and update that state with a scheduled script.
+This sample demonstrates two independent module lifecycle mechanisms: initialization and scheduled execution.
 
-The module exposes one row through `SCHEDULER_STATE`:
+A descriptor bundle or loaded module can declare an initialization script. Kubling invokes it during bootstrap and injects `initResult`, which allows the script to report successful completion with `initResult.initialized()` or failure with `initResult.error(...)`. A reported failure prevents bootstrap from completing normally.
 
-- the initialization script creates generation `0` and token `token-0`;
-- the scheduled script advances the generation every two seconds; and
-- the table handler reads the current state from Kubling's shared thread-safe key/value store.
+This sample declares an initialization script and a scheduled script in a JavaScript module. The JavaScript data source is not responsible for initialization; it only makes the resulting state observable through `SCHEDULER_STATE`:
+
+- the initialization script creates generation `0` and token `token-0`, then reports successful completion
+- the scheduled script advances the generation every two seconds
+- the table handler reads the current state from Kubling's shared thread-safe key/value store
 
 The generation and token are stored together as one JSON value, so readers never observe a token from a different generation.
 
 ## Source map
 
-- `module/init/initialize_state.js` establishes the state and reports successful initialization.
+- `module/init/initialize_state.js` establishes the state and reports successful initialization through `initResult`.
 - `module/scheduled/advance_state.js` advances it on a six-field cron schedule.
 - `module/handler/SCHEDULER_STATE.js` exposes the current value as a table row.
-- `module/bundle-script-info.yaml` connects the lifecycle scripts, handler directory, DDL, and translator configuration.
+- `module/bundle-script-info.yaml` declares the module initializer, scheduled script, handler directory, DDL, and translator configuration.
 
 ## Prerequisites
 
 - Git
 - Docker Engine
 - Docker Compose v2
-
-No Node.js, Java, database, credentials, or Kubernetes cluster is required on the host.
 
 ## Start
 
@@ -32,7 +32,7 @@ cd initializer
 docker compose up --wait
 ```
 
-Compose generates the descriptor and JavaScript module bundles with an exact Kubling CLI image. Generated ZIP files live only in a named volume and are not committed.
+Compose generates the descriptor and JavaScript module bundles with the official Kubling CLI image. Generated ZIP files live only in a named volume and are not committed.
 
 When the stack is ready:
 

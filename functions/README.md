@@ -2,8 +2,8 @@
 
 This sample shows how Kubling loads JavaScript functions from independently generated modules. It combines two related extension points:
 
-- `task_label`, a deterministic SQL user-defined function invoked from a query; and
-- `validate_task_id`, a custom template function that validates a task identifier for a query endpoint.
+- `task_label`, a deterministic SQL user-defined function invoked from a query
+- `validate_task_id`, a custom template function that validates a task identifier for a query endpoint
 
 Both functions operate on the deterministic data exposed by the official Kubling In-memory provider. JavaScript is used only to implement the functions; the physical data source follows the provider gRPC architecture.
 
@@ -23,8 +23,6 @@ Function files cannot import modules or call other user-defined functions. Kubli
 - Docker Engine
 - Docker Compose v2
 
-No Node.js, Java, database, credentials, or Kubernetes cluster is required on the host.
-
 ## Start
 
 ```bash
@@ -32,7 +30,7 @@ cd functions
 docker compose up --wait
 ```
 
-Compose generates the descriptor, SQL-function, and template-function bundles with an exact Kubling CLI image. The ZIP files live only in a named volume and are not committed.
+Compose generates the descriptor, SQL-function, and template-function bundles with the official Kubling CLI image. The ZIP files live only in a named volume and are not committed.
 
 When the stack is ready:
 
@@ -63,13 +61,14 @@ The parameter names and order in `bundle-sql-function-info.yaml` determine how S
 
 ## Template function
 
-Call the query endpoint from any HTTP client:
+Call the query endpoint from the Compose readiness container:
 
-```http
-POST http://localhost:8282/api/v1/query/perform/get_task_label
-Content-Type: application/json
-
-{"task_id":"task-2"}
+```bash
+docker compose exec -T stack-readiness curl \
+  --fail --silent --show-error \
+  --header 'Content-Type: application/json' \
+  --data '{"task_id":"task-2"}' \
+  http://kubling:8282/api/v1/query/perform/get_task_label
 ```
 
 The template calls `templates__validate_task_id(_context.task_id)` before producing the SQL query. The validated value is then quoted by the endpoint template. The resulting query also calls `task_label`, so the expected response contains:

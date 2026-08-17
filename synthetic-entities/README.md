@@ -34,8 +34,6 @@ The handler knows only about `PROJECT`. Kubling performs the synthetic projectio
 - Docker Engine
 - Docker Compose v2
 
-No Node.js, Java, database, credentials, external API, or Kubernetes cluster is required on the host.
-
 ## Start
 
 ```bash
@@ -43,7 +41,7 @@ cd synthetic-entities
 docker compose up --wait
 ```
 
-Compose generates the descriptor and JavaScript module bundles with an exact Kubling CLI image. Generated ZIP files live only in a named volume and are not committed.
+Compose generates the descriptor and JavaScript module bundles with the official Kubling CLI image. Generated ZIP files live only in a named volume and are not committed.
 
 When the stack is ready:
 
