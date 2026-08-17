@@ -4,11 +4,9 @@ This sample demonstrates Kubling query endpoints and actions against the officia
 
 ## Requirements
 
-- Git;
-- Docker Engine; and
-- Docker Compose v2.
-
-You do not need Go, Java, Kubernetes, a database server, source credentials, or a host-installed SQL client.
+- Git
+- Docker Engine
+- Docker Compose v2
 
 ## Start
 
@@ -18,7 +16,7 @@ From this directory, run:
 docker compose up --wait
 ```
 
-The stack publishes Kubling on <http://localhost:8283>. Its aggregate health endpoint is <http://localhost:8283/observe/health>, and Kubling Studio is available at <http://localhost:8283/console>.
+The stack publishes Kubling on <http://localhost:8282>. Its aggregate health endpoint is <http://localhost:8282/observe/health>, and Kubling Studio is available at <http://localhost:8282/console>.
 
 ## Architecture
 
@@ -36,10 +34,10 @@ Both endpoints execute through Kubling. The provider remains responsible for sou
 The provider starts `task-2` with `completed = false`. Retrieve it through the named endpoint:
 
 ```bash
-curl --fail --silent --show-error \
+docker compose exec -T stack-readiness curl --fail --silent --show-error \
   --header 'Content-Type: application/json' \
   --data '{"task_id":"task-2"}' \
-  http://localhost:8283/api/v1/query/perform/get_task
+  http://kubling:8282/api/v1/query/perform/get_task
 ```
 
 The response contains:
@@ -64,10 +62,10 @@ The response contains:
 Create a deterministic task through the named action:
 
 ```bash
-curl --fail --silent --show-error \
+docker compose exec -T stack-readiness curl --fail --silent --show-error \
   --header 'Content-Type: application/json' \
   --data '{"task_id":"task-endpoint-sample"}' \
-  http://localhost:8283/api/v1/actions/run/create_task
+  http://kubling:8282/api/v1/actions/run/create_task
 ```
 
 Expected response:
@@ -115,14 +113,14 @@ The smoke test removes any prior sample task, exercises the query endpoint, runs
 | VDB | `EndpointsVDB` |
 | Data source and schema | `provider` |
 | Provider table | `TASK` |
-| Published host port | `8283` on all host interfaces |
+| Published host port | `8282` on all host interfaces |
 | Provider gRPC | `provider:50051`, internal to Compose |
-| Health | `http://localhost:8283/observe/health` |
+| Health | `http://localhost:8282/observe/health` |
 
 ## Cleanup
 
 Remove containers, the network, and the generated descriptor volume:
 
 ```bash
-docker compose down --volumes
+docker compose down --volumes --remove-orphans
 ```

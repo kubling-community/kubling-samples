@@ -1,6 +1,6 @@
 # RBAC Sample
 
-This sample demonstrates Kubling authentication and data-role authorization against the official In-memory gRPC provider. A JavaScript authentication delegate maps two deterministic local users to external roles, and `RbacVDB` grants each role a different set of permissions on `provider.TASK`.
+This sample demonstrates transport-scoped Kubling authentication and data-role authorization against the official In-memory gRPC provider. A JavaScript authentication delegate accepts two deterministic local users only through `SOCKET_TRANSPORT`, maps them to external roles, and `RbacVDB` grants each role a different set of permissions on `provider.TASK`.
 
 ## Contract
 
@@ -24,10 +24,12 @@ The provider schema is imported through `GetSchema`; the VDB does not duplicate 
 | VDB/database | `RbacVDB` |
 | Data source and schema | `provider` |
 | Protected table | `TASK` |
-| Published host port | `8284`, health only, on all host interfaces |
+| Accepted authentication source | `SOCKET_TRANSPORT` |
+| Intentionally rejected source | `HTTP`, used by Kubling Studio |
+| Published host port | `8282`, Studio and health, on all host interfaces |
 | Kubling SQL transport | `kubling:35432`, internal to Compose |
 | Provider gRPC | `provider:50051`, internal to Compose |
-| Health | `http://localhost:8284/observe/health` |
+| Health | `http://localhost:8282/observe/health` |
 
 ## Walkthrough
 
@@ -36,6 +38,27 @@ Start the stack from this directory:
 ```bash
 docker compose up --wait
 ```
+
+## Verify the authentication boundary
+
+The credentials in this sample are valid only for the socket transport. Kubling Studio authenticates through `HTTP`, so entering `reader` / `reader-pass` or `editor` / `editor-pass` in Studio must not create a session.
+
+You can verify the same behavior without a browser:
+
+```bash
+docker compose exec -T stack-readiness curl --include \
+  --user reader:reader-pass \
+  --request POST \
+  http://kubling:8282/api/v1/studio/session
+```
+
+Expected status: `HTTP 401 Unauthorized`.
+
+This is an authentication-source rejection, not an RBAC denial: no authenticated HTTP identity exists yet, so the VDB roles are never evaluated.
+
+To enable Studio authentication, modify `descriptor/auth/authenticator.js` to accept `HTTP` explicitly and decide which principals and roles that source should receive. Do not remove the source check indiscriminately: the delegate also receives the source for other transports.
+
+## Verify socket authentication and RBAC
 
 First, the reader can see the deterministic task:
 
@@ -107,14 +130,13 @@ RBAC smoke test passed.
 ```
 
 The GitHub workflow runs both the static contract and Docker E2E on pull requests and pushes that affect this sample.
+The static contract also verifies that the authentication delegate remains intentionally scoped to `SOCKET_TRANSPORT`.
 
 ## Requirements
 
-- Git;
-- Docker Engine; and
-- Docker Compose v2.
-
-You do not need Go, Java, Kubernetes, source credentials, a database server, or a host-installed SQL client.
+- Git
+- Docker Engine
+- Docker Compose v2
 
 ## Cleanup
 

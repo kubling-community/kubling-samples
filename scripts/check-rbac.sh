@@ -28,6 +28,7 @@ done
 
 docker compose -f "${compose_file}" config --quiet
 sh -n rbac/scripts/smoke-test.sh
+grep -Fq '"8282:8282"' "${compose_file}"
 
 mapfile -t images < <(
   docker compose -f "${compose_file}" --profile client --profile test config --images | sort -u
@@ -67,6 +68,7 @@ fi
 grep -Fq 'allowUpdate: false' "${vdb_file}"
 grep -Fq 'allowUpdate: true' "${vdb_file}"
 grep -Fq 'scriptFilePath: "auth/authenticator.js"' "${bundle_file}"
+grep -Fq 'auth.authenticationSource.value() !== "SOCKET_TRANSPORT"' rbac/descriptor/auth/authenticator.js
 
 if ! awk '
   /pgProtocol:/ { in_pg = 1; next }

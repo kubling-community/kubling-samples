@@ -4,11 +4,9 @@ Run Kubling, Kubling Studio, and the official In-memory provider as one disposab
 
 ## Requirements
 
-- Git;
-- Docker Engine; and
-- Docker Compose v2.
-
-You do not need Go, Java, Kubernetes, a database server, source credentials, or any host-installed SQL client.
+- Git
+- Docker Engine
+- Docker Compose v2
 
 ## Start
 
@@ -112,5 +110,5 @@ docker compose logs kubling provider
 Remove containers, the network, and the generated descriptor volume:
 
 ```bash
-docker compose down --volumes
+docker compose down --volumes --remove-orphans
 ```

@@ -2,64 +2,55 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
 
-Runnable examples for Kubling. This repository provides the canonical first-run experience and focused examples for features that are easier to understand from working code than from reference documentation alone.
+Runnable examples for learning Kubling through working code.
 
-## Quickstart
+Kubling combines several capabilities that solve different problems: provider integration, endpoints, authentication and authorization, JavaScript extensibility, functions, module lifecycle hooks, and synthetic entities. Putting all of them into one large application makes each mechanism harder to identify and understand, so this repository isolates them into small, independent samples.
 
-The supported Quickstart runs Kubling, Kubling Studio, and the official In-memory provider with Docker Compose.
+Start with the Quickstart to see the complete minimal stack, then choose a focused sample for the feature you want to explore. These examples complement the [official Kubling documentation](https://docs.kubling.com), which remains the reference for concepts and configuration.
+
+## Start with the Quickstart
+
+The Quickstart runs Kubling, Kubling Studio, and the official In-memory gRPC provider with Docker Compose.
 
 ```bash
 cd quickstart
 docker compose up --wait
 ```
 
-Open <http://localhost:8282/console>, or follow the complete [Quickstart guide](quickstart/README.md) for its deterministic query, mutation, automated smoke test, and cleanup.
+Open <http://localhost:8282/console>, or follow the complete [Quickstart guide](quickstart/README.md) to run a deterministic query and mutation.
 
-The Quickstart requires only Git, Docker Engine, and Docker Compose v2. It does not require Go, Java, Kubernetes, an external database, or source credentials.
+All samples require only Git, Docker Engine, and Docker Compose v2. They generate their required bundles automatically and do not require a host-language toolchain.
 
-## Feature examples
+## Explore Kubling features
 
-The repository also provides focused, independently runnable feature examples:
+Each directory answers a specific question:
 
-| Directory | What it teaches | Status |
-|:--|:--|:--|
-| `endpoints/` | Query endpoints, actions, mutations, and templates | Supported |
-| `rbac/` | Authentication, authorization, and data policies | Supported |
-| `javascript/` | JavaScript data sources, module bundles, and table handlers | Supported |
-| `functions/` | SQL functions and custom template functions | Supported |
-| `initializer/` | Initialization and scheduled JavaScript behavior | Supported |
-| `synthetic-entities/` | Relational projections and mutations over nested document arrays | Supported |
+| Sample | What to explore |
+|:--|:--|
+| [Quickstart](quickstart/README.md) | How Kubling registers a gRPC provider, imports its schema, queries deterministic data, and executes a mutation |
+| [Endpoints](endpoints/README.md) | How query endpoints and actions expose reusable operations over provider data |
+| [RBAC](rbac/README.md) | How authentication sources, external-role mappings, and VDB data roles control access |
+| [JavaScript data source](javascript/README.md) | How a JavaScript module defines schema, data, and table handlers |
+| [Functions](functions/README.md) | How SQL functions and custom template functions are packaged and invoked |
+| [Initialization and scheduling](initializer/README.md) | How modules run initialization during bootstrap, report success or failure, and schedule recurring work |
+| [Synthetic entities](synthetic-entities/README.md) | How nested document arrays become relational tables and how mutations propagate to their parent document |
 
-Provider-backed examples use `PROVIDER_GRPC`. A sample may intentionally use a JavaScript adapter when JavaScript itself is the lesson.
+## Run a focused sample
 
-## Sample quality contract
+Samples are independent and publish Kubling on port `8282`, so run one at a time:
 
-Every supported sample must:
+```bash
+cd <sample-directory>
+docker compose up --wait
+```
 
-- teach one clear Kubling capability;
-- run independently against the current public container images;
-- state prerequisites, startup, readiness, verification, expected results, and cleanup;
-- avoid external credentials and paid infrastructure unless that dependency is the lesson;
-- keep generated bundles and runtime state out of Git; and
-- include automation appropriate to its scope.
+The sample README explains what to inspect, which query or operation to run, the expected result, and its automated smoke test.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution contract.
+When finished, remove the complete sample stack and its generated bundles:
 
-## Generated artifacts
-
-Descriptor and module bundles are build output. ZIP files, compiled classes, JARs, database files, and runtime state must not be committed.
-
-Supported samples run the official Kubling CLI image to generate descriptor and module bundles inside named Compose volumes. Contributors therefore do not need to install the CLI or a host-language toolchain.
-
-## Compatibility
-
-The default branch tracks the current public Kubling release instead of a fixed release line.
-
-- Compose files use the public `latest` images so the samples continue to follow new Kubling releases.
-- CI continuously validates those rolling images against every supported sample.
-- Git history and repository release tags preserve older states when a historical sample is needed.
-
-The repository is published as `kubling-community/kubling-samples`, a name that covers both the Quickstart and the advanced feature examples.
+```bash
+docker compose down --volumes --remove-orphans
+```
 
 ## License
 

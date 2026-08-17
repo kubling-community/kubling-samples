@@ -29,6 +29,7 @@ done
 
 docker compose -f "${compose_file}" config --quiet
 sh -n endpoints/scripts/smoke-test.sh
+grep -Fq '"8282:8282"' "${compose_file}"
 
 mapfile -t images < <(docker compose -f "${compose_file}" config --images | sort -u)
 expected_images=(
