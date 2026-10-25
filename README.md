@@ -21,7 +21,7 @@ docker compose up --wait
 
 Open <http://localhost:8282/console>, or follow the complete [Quickstart guide](quickstart/README.md) to run a deterministic query and mutation.
 
-All samples require only Git, Docker Engine, and Docker Compose v2. They generate their required bundles automatically and do not require a host-language toolchain.
+Compose-based samples require only Git, Docker Engine, and Docker Compose v2. They generate their required bundles automatically and do not require a host-language toolchain.
 
 ## Explore Kubling features
 
@@ -40,10 +40,11 @@ Each directory answers a specific question:
 | [Bundle-level scheduled scripts](scheduled-scripts/README.md) | How trusted descriptor automation executes privileged SQL through the engine |
 | [Synthetic entities](synthetic-entities/README.md) | How nested document arrays become relational tables and how mutations propagate to their parent document |
 | [Kubernetes semantics](kubernetes-semantics/README.md) | How a provider publishes source-native semantics and a VDB adds federation-owned terminology without replacing it |
+| [Performance comparison](performance-comparison/README.md) | Compare two Kubling images using deterministic SQL, gRPC client latency, and engine-side Performance Tracer measurements |
 
 ## Run a focused sample
 
-Samples are independent and publish Kubling on port `8282`, so run one at a time:
+Compose-based samples are independent and publish Kubling on port `8282`, so run one at a time:
 
 ```bash
 cd <sample-directory>

@@ -1,0 +1,64 @@
+{
+  "format": "kubling-performance-workloads",
+  "formatVersion": 1,
+  "seed": {
+    "customers": 32,
+    "ordersPerCustomer": 8
+  },
+  "groups": [
+    {
+      "id": "sql",
+      "requiresSeed": false,
+      "queries": [
+        {
+          "id": "scalar-expression",
+          "sql": "SELECT 42 AS answer, CASE WHEN 7 * 6 = 42 THEN 'ok' ELSE 'bad' END AS status",
+          "warmups": 20,
+          "iterations": 200,
+          "minRows": 1
+        },
+        {
+          "id": "json-table",
+          "sql": "SELECT j.id, j.name, j.status FROM JSONTABLE(CAST('{\"id\":5,\"name\":\"carly\",\"status\":\"sold\"}' AS json), '$', false COLUMNS id integer, name string, status string) AS j",
+          "warmups": 10,
+          "iterations": 100,
+          "minRows": 1
+        }
+      ]
+    },
+    {
+      "id": "portable",
+      "requiresSeed": true,
+      "queries": [
+        {
+          "id": "point-lookup",
+          "sql": "SELECT id, name, region FROM local.CUSTOMERS WHERE id = 17",
+          "warmups": 10,
+          "iterations": 100,
+          "minRows": 1
+        },
+        {
+          "id": "grouped-aggregation",
+          "sql": "SELECT region, COUNT(*) AS customer_count, SUM(id) AS id_sum FROM local.CUSTOMERS GROUP BY region ORDER BY region",
+          "warmups": 10,
+          "iterations": 80,
+          "minRows": 4
+        },
+        {
+          "id": "join-aggregation",
+          "sql": "SELECT c.region, COUNT(o.id) AS order_count, SUM(o.amount) AS total_amount FROM local.CUSTOMERS AS c JOIN local.ORDERS AS o ON c.id = o.customer_id WHERE o.status = 'PAID' GROUP BY c.region ORDER BY c.region",
+          "warmups": 10,
+          "iterations": 60,
+          "minRows": 4
+        },
+        {
+          "id": "partitioned-window",
+          "sql": "SELECT customer_id, amount, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY amount DESC) AS row_position FROM local.ORDERS WHERE customer_id <= 8 ORDER BY customer_id, row_position",
+          "warmups": 5,
+          "iterations": 40,
+          "minRows": 32
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+name: Performance Comparison
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/performance-comparison.yml"
+      - "performance-comparison/**"
+      - "scripts/check-performance-comparison.sh"
+  push:
+    paths:
+      - ".github/workflows/performance-comparison.yml"
+      - "performance-comparison/**"
+      - "scripts/check-performance-comparison.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: performance-comparison-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Validate static contract
+        run: bash scripts/check-performance-comparison.sh
