@@ -390,6 +390,5 @@ python3 "${BASE_DIR}/benchmark.py" compare \
   --output-markdown "${run_dir}/comparison.md" \
   "${sample_files[@]}"
 
-cat "${run_dir}/comparison.md"
 echo
 echo "Performance comparison evidence: ${run_dir}"

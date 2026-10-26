@@ -43,6 +43,14 @@ grep -Fq 'queryTransport: "grpc"' performance-comparison/run-comparison.sh
 grep -Fq 'clientRuntime: $clientRuntime' performance-comparison/run-comparison.sh
 grep -Fq '"kubling-grpc", "grpcio", "protobuf", "SQLAlchemy"' \
   performance-comparison/run-comparison.sh
+grep -Fq 'print(terminal(summary))' performance-comparison/benchmark.py
+grep -Fq 'baseline -> candidate' performance-comparison/benchmark.py
+grep -Fq 'candidate faster by' performance-comparison/benchmark.py
+grep -Fq 'baseline faster by' performance-comparison/benchmark.py
+if grep -Fq 'cat "${run_dir}/comparison.md"' performance-comparison/run-comparison.sh; then
+  printf 'ERROR: stdout must use the terminal renderer, not the Markdown report.\n' >&2
+  exit 1
+fi
 grep -Fq 'performanceTracer:' performance-comparison/app-config.yaml
 grep -Fq 'enabled: true' performance-comparison/app-config.yaml
 grep -Fq 'dataSourceType: "PORTABLE_LOCAL"' \

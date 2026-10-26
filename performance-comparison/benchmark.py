@@ -549,6 +549,116 @@ def markdown(summary: dict[str, Any]) -> str:
     )
     return "\n".join(lines)
 
+
+def terminal_winner(improvement: float) -> str:
+    displayed = round(improvement, 2)
+    if displayed > 0:
+        return f"candidate faster by {displayed:.2f}%"
+    if displayed < 0:
+        return f"baseline faster by {abs(displayed):.2f}%"
+    return "tie"
+
+
+def terminal_duration_unit(comparison: dict[str, Any]) -> tuple[float, str]:
+    values = [
+        float(comparison[side][percentile])
+        for side in ("baseline", "candidate")
+        for percentile in ("p50Millis", "p95Millis", "p99Millis")
+    ]
+    largest = max(values)
+    if largest < 0.001:
+        return 1_000_000.0, "ns"
+    if largest < 1:
+        return 1_000.0, "us"
+    return 1.0, "ms"
+
+
+def terminal_metric(label: str, comparison: dict[str, Any], indent: str = "  ") -> list[str]:
+    baseline = comparison["baseline"]
+    candidate = comparison["candidate"]
+    scale, unit = terminal_duration_unit(comparison)
+    return [
+        f"{indent}{label}",
+        f"{indent}  baseline -> candidate ({unit}; lower is better)",
+        f"{indent}  p50  {baseline['p50Millis'] * scale:>10.3f} -> "
+        f"{candidate['p50Millis'] * scale:>10.3f} {unit}  | "
+        f"{terminal_winner(comparison['candidateImprovementPercent'])}",
+        f"{indent}  p95  {baseline['p95Millis'] * scale:>10.3f} -> "
+        f"{candidate['p95Millis'] * scale:>10.3f} {unit}  | "
+        f"{terminal_winner(comparison['candidateP95ImprovementPercent'])}",
+        f"{indent}  p99  {baseline['p99Millis'] * scale:>10.3f} -> "
+        f"{candidate['p99Millis'] * scale:>10.3f} {unit}  | "
+        f"{terminal_winner(comparison['candidateP99ImprovementPercent'])}",
+    ]
+
+
+def terminal(summary: dict[str, Any]) -> str:
+    baseline = summary["baseline"]
+    candidate = summary["candidate"]
+    manifest = summary["manifest"]
+    host = manifest["host"]
+    docker = manifest["docker"]
+    limits = manifest["limits"]
+    host_name = host.get("label") or "unlabeled host"
+    cpu_model = host.get("cpuModel") or "not reported"
+
+    lines = [
+        "Kubling image performance comparison",
+        "====================================",
+        "",
+        "Images",
+        f"  baseline   {baseline['imageReference']}",
+        f"             {baseline['imageId'][:19]}",
+        f"  candidate  {candidate['imageReference']}",
+        f"             {candidate['imageId'][:19]}",
+        "",
+        "Environment",
+        f"  host       {host_name}",
+        f"  system     {host['architecture']}; {cpu_model}",
+        f"  Docker     {docker['serverVersion']} on {docker['operatingSystem']}",
+        f"  limits     {limits['cpus']} CPUs, {limits['memory']} memory",
+        f"  workload   {manifest['group']}; scale {manifest['scale']}; "
+        f"{baseline['rounds']} rounds per image",
+        "",
+        "Overall",
+    ]
+    lines.extend(terminal_metric("Startup to health", summary["comparison"]["startup"]))
+    lines.extend(
+        terminal_metric(
+            "Client-observed query latency", summary["comparison"]["overallClient"]
+        )
+    )
+    lines.extend(
+        terminal_metric(
+            "Kubling-recorded query duration", summary["comparison"]["overallKubling"]
+        )
+    )
+    client = summary["comparison"]["overallClient"]
+    lines.extend(
+        [
+            "  Sequential query rate",
+            "    baseline -> candidate (queries/s; higher is better)",
+            f"    {client['baseline']['sequentialQueriesPerSecond']:>10.2f} -> "
+            f"{client['candidate']['sequentialQueriesPerSecond']:>10.2f} queries/s  | "
+            f"{terminal_winner(client['candidateThroughputImprovementPercent'])}",
+            "",
+            "Per query",
+        ]
+    )
+    for item in summary["comparison"]["queries"]:
+        lines.append(f"  {item['group']} / {item['id']}")
+        lines.extend(terminal_metric("client", item["client"], indent="    "))
+        lines.extend(terminal_metric("Kubling", item["kubling"], indent="    "))
+
+    lines.extend(
+        [
+            "",
+            "This compares complete images on one host; it is not an absolute capacity result.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def compare(args: argparse.Namespace) -> None:
     samples = [json.loads(Path(path).read_text(encoding="utf-8")) for path in args.samples]
     if any(sample.get("format") != SAMPLE_FORMAT for sample in samples):
@@ -598,6 +708,7 @@ def compare(args: argparse.Namespace) -> None:
     Path(args.output_json).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     Path(args.output_markdown).write_text(markdown(summary), encoding="utf-8")
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    print(terminal(summary))
 
 
 def validate(args: argparse.Namespace) -> None:

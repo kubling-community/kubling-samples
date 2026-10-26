@@ -91,9 +91,10 @@ Replace the placeholder tags with real image references. The runner pulls both
 images and resolves them to immutable image IDs before measuring. Add
 `--no-pull` when both images are already loaded locally.
 
-A successful run prints a comparison table and the result directory. Positive
-percentages mean that the candidate was faster - negative percentages mean that
-it was slower.
+A successful run prints a terminal-friendly comparison and the result
+directory. The same measurements are written as Markdown and JSON for later
+inspection. Positive percentages mean that the candidate was faster - negative
+percentages mean that it was slower.
 
 For a quick functional check with fewer executions:
 
