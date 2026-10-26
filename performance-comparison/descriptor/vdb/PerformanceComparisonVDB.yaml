@@ -1,0 +1,30 @@
+---
+name: "PerformanceComparisonVDB"
+version: "1"
+
+dataSources:
+  - name: "local"
+    dataSourceType: "PORTABLE_LOCAL"
+    configObject:
+      dataSourceName: "performance-comparison"
+      databaseName: "performance-comparison"
+      userName: "sa"
+      token: "sa"
+      maxConnectionPoolSize: 5
+      minConnectionPoolSize: 1
+      cache:
+        enabled: false
+      allowBruteForceOperations: false
+      filePath: "{{ PERF_COMPARE_DB_PATH }}"
+      useKublingDDL: true
+      ddlFilePaths:
+        - "bundle:schema.ddl"
+      softTransactions:
+        enabled: false
+    schema:
+      type: "PHYSICAL"
+      properties:
+        importer.useCatalogName: "false"
+        importer.useFullSchemaName: "false"
+        importer.schemaName: "PUBLIC"
+      cacheDefaultStrategy: "NO_CACHE"

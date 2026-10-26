@@ -1,0 +1,42 @@
+instanceName: "performance-comparison"
+
+transports:
+  nativeProtocol:
+    enable: false
+  grpc:
+    enable: true
+    bindAddress: "0.0.0.0"
+    portNumber: {{ GRPC_PORT }}
+    secure: false
+  pgProtocol:
+    enable: false
+
+vdb:
+  descriptorBundle: "{{ DESCRIPTOR_BUNDLE }}"
+
+management:
+  enableRestartEndpoint: false
+
+cache:
+  enableInvalidateEndpoint: false
+
+buffer:
+  useDisk: false
+
+softTransactions:
+  enabled: false
+
+kublingAgent:
+  enabled: false
+
+performanceTracer:
+  enabled: true
+  printToLogger: false
+  jsonFile:
+    enabled: false
+  database:
+    enabled: true
+    compressQueries: false
+    vdbName: "PerfTracerVDB"
+    schemaName: "PerfTracer"
+    directoryPath: "{{ PERF_COMPARE_RUNTIME_DIR }}/perftracer"
